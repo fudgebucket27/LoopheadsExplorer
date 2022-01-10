@@ -15,12 +15,13 @@
 else
 {
     int count = 0;
+    int collectionCount = 1;
     foreach(var loopheadIpfsLink in loopheadIpfsLinks)
     {
         if(count != 1000)
         {
             var tempCount = count;
-            <h2>Loophead #@count <button type="button" disabled=@variationButtonStates[tempCount] class="btn btn-primary" @onclick="@(e => GetLoopheadMetadataLinks(e, loopheadIpfsLink.cid, tempCount))">View variations</button></h2>
+            <h2>Loophead #@collectionCount <button type="button" disabled=@variationButtonStates[tempCount] class="btn btn-primary" @onclick="@(e => GetLoopheadMetadataLinks(e, loopheadIpfsLink.cid, tempCount))">View variations</button></h2>
         }
         @if(loopheadIpfsLinks.Any(x => x.loopheads.Count > 0))
         {
@@ -28,11 +29,31 @@ else
             {
                 if(loopheadVariations.baseCid == loopheadIpfsLink.cid)
                 {
-                    <h3>Variation #@loopheadVariations.variation</h3>
+                    <h3>Variation #@loopheadVariations.baseId-@loopheadVariations.variation <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadMetadata(e, loopheadVariations.metadataCidLink))">View metadata</button></h3>
+                     if(@loopheadVariations.metadata != null)
+                     {
+                        var loopheadImageUrl = cloudflareIpfsGatewayUrl + loopheadVariations.metadata.image.Remove(0, 7);
+                        <div class="card" style="width: 300px;">
+                          <img src="@loopheadImageUrl" class="card-img-top" alt="loophead image">
+                          <div class="card-body">
+                            <p class="card-text">Name: @loopheadVariations.metadata.name</p>
+                            <p class="card-text">Description: @loopheadVariations.metadata.description</p>
+                            <p class="card-text">Image Url: @loopheadVariations.metadata.image</p>
+                            <p class="card-text">External Uri: @loopheadVariations.metadata.externalUri</p>
+                            <p class="card-text">Cache Expiry Seconds: @loopheadVariations.metadata.cacheExpirySeconds</p>
+                            @foreach(var trait in loopheadVariations.metadata.attributes)
+                            {
+                                <p class="card-text">Trait type: @trait.traitType</p>
+                                <p class="card-text">Value: @trait.value</p>
+                            }
+                         </div>
+                        </div>
+                     }
                 }
             }
         }
         count++;
+        collectionCount++;
     }
 
 }
@@ -41,6 +62,7 @@ else
 @code {
     private List<LoopheadIpfsLink> loopheadIpfsLinks;
     private List<bool> variationButtonStates;
+    private List<bool> metadataButtonStates;
 
     [Parameter]
     public string ipfsAddress { get; set; }
@@ -110,21 +132,21 @@ else
         StateHasChanged();
     }
 
-    /*
     private async void GetLoopheadMetadata(MouseEventArgs e, string loopheadMetadataLink)
     {
         IpfsData ipfsDataLevelThree = await IpfsService.GetDirectoryContents(loopheadMetadataLink);
         LoopheadMetadata loopheadMetadata = await IpfsService.GetLoopheadMetadata(ipfsDataLevelThree.links[0].Cid.value);
-        foreach(var loophead in loopheads)
+        foreach(var ipfsLink in loopheadIpfsLinks)
         {
-            if(loophead.metadataCidLink == loopheadMetadataLink)
+            foreach(var loophead in ipfsLink.loopheads)
             {
-                loophead.metadata = loopheadMetadata;
-                break;
+                if(loophead.metadataCidLink == loopheadMetadataLink)
+                {
+                    loophead.metadata = loopheadMetadata;
+                    break;
+                }
             }
         }
         StateHasChanged();
     }
-     */
-
 }

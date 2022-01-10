@@ -14,10 +14,14 @@
 }
 else
 {
-    int count = 1;
+    int count = 0;
     foreach(var loopheadIpfsLink in loopheadIpfsLinks)
     {
-        <h2>Loophead #@count <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadMetadataLinks(e, loopheadIpfsLink.cid))">View variations</button></h2>
+        if(count != 1000)
+        {
+            var tempCount = count;
+            <h2>Loophead #@count <button type="button" disabled=@variationButtonStates[tempCount] class="btn btn-primary" @onclick="@(e => GetLoopheadMetadataLinks(e, loopheadIpfsLink.cid, tempCount))">View variations</button></h2>
+        }
         @if(loopheadIpfsLinks.Any(x => x.loopheads.Count > 0))
         {
             foreach(var loopheadVariations in loopheadIpfsLink.loopheads)
@@ -28,7 +32,6 @@ else
                 }
             }
         }
-
         count++;
     }
 
@@ -37,6 +40,7 @@ else
 
 @code {
     private List<LoopheadIpfsLink> loopheadIpfsLinks;
+    private List<bool> variationButtonStates;
 
     [Parameter]
     public string ipfsAddress { get; set; }
@@ -48,6 +52,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         loopheadIpfsLinks = new List<LoopheadIpfsLink>();
+        variationButtonStates = new List<bool>();
         //string baseUri = await EthereumService.GetLoopheadBaseUri(contractAddress);
         IpfsData ipfsDataLevelOne = await IpfsService.GetDirectoryContents(ipfsAddress);
         //IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(ipfsDataLevelOne.links[0].Cid.value)
@@ -61,6 +66,7 @@ else
                     cid = links.Cid.value
                 };
                 loopheadIpfsLinks.Add(loopheadIpfsLink);
+                variationButtonStates.Add(false);
             }
         }
         /*
@@ -77,8 +83,9 @@ else
          */   
     }
 
-    private async void GetLoopheadMetadataLinks(MouseEventArgs e, string loopheadMetadataLink)
+    private async void GetLoopheadMetadataLinks(MouseEventArgs e, string loopheadMetadataLink, int buttonId)
     {
+        variationButtonStates[buttonId] = true;
         IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(loopheadMetadataLink);
         foreach(var link in ipfsDataLevelTwo.links)
         {
@@ -95,7 +102,7 @@ else
                             variation = link.Name.Split('_')[1],
                             metadataCidLink = link.Cid.value
                         };
-                        ipfsLink.loopheads.Add(loophead);
+                    ipfsLink.loopheads.Add(loophead);
                     break;
                 }
             }

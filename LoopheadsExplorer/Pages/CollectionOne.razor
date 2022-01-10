@@ -18,11 +18,14 @@ else
 {
     for(int i = 0; i < 5; i++)
     {
-        List<Loophead> loopheadCollection = loopheads.Where(x => x.BaseId == i.ToString()).ToList();
+        List<Loophead> loopheadCollection = loopheads.Where(x => x.baseId == i.ToString()).ToList();
         <h2>Loophead #@i</h2>
         foreach(var loophead in loopheadCollection)
         {
-            <h3>Variation #@loophead.Variation</h3>
+            <h3>Variation #@loophead.variation</h3>
+            Loophead tempLoophead = loophead;
+            <button @onlick="( () => GetLoopheadMetadata(tempLoophead))">View metadata</button>
+            <p></p>
         }
     }
 }
@@ -38,13 +41,20 @@ else
         IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(ipfsDataLevelOne.links[0].Cid.value);
         foreach(var link in ipfsDataLevelTwo.links)
         {
+      
             Loophead loophead = new Loophead
             {
-                    BaseId = link.Name.Split('_')[0],
-                    Variation = link.Name.Split('_')[1],
-                    MetadataCidLink = link.Cid.value
+                    baseId = link.Name.Split('_')[0],
+                    variation = link.Name.Split('_')[1],
+                    metadataCidLink = link.Cid.value
             };
             loopheads.Add(loophead);
         }
+    }
+
+    protected async Task GetLoopheadMetadata(Loophead loophead)
+    {
+        IpfsData ipfsDataLevelThree = await IpfsService.GetDirectoryContents(loophead.metadataCidLink);
+        LoopheadMetadata loopheadMetadata = await IpfsService.GetLoopheadMetadata(ipfsDataLevelThree.links[0].Cid.value);
     }
 }

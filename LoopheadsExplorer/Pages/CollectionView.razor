@@ -90,19 +90,7 @@ else
                 loopheadIpfsLinks.Add(loopheadIpfsLink);
                 variationButtonStates.Add(false);
             }
-        }
-        /*
-        foreach(var link in ipfsDataLevelTwo.links)
-            {
-            Loophead loophead = new Loophead
-                    {
-                    baseId = link.Name.Split('_')[0],
-                    variation = link.Name.Split('_')[1],
-                    metadataCidLink = link.Cid.value
-            };
-            loopheads.Add(loophead);
-        }   
-         */   
+        } 
     }
 
     private async void GetLoopheadMetadataLinks(MouseEventArgs e, string loopheadMetadataLink, int buttonId)

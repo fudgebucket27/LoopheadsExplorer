@@ -1,4 +1,4 @@
-﻿@page "/collectionOne"
+﻿@page "/collectionView/{contractAddress}"
 @using LoopheadsExplorer.Data
 @using LoopheadsExplorer.Models
 @inject EthereumService EthereumService
@@ -9,7 +9,7 @@
 
 
 <h2>Collection #1</h2>
-<a href="https://etherscan.io/address/@contractAddress">Contract Address: @contractAddress </a>
+<a href="https://etherscan.io/address/@contractAddress" target="_blank">Contract Address: @contractAddress </a>
 @if(loopheads.Count == 0)
 {
     <p>Retrieving data...</p>
@@ -26,15 +26,22 @@ else
 
             if(@loophead.metadata != null)
             {
-                <h4>Metadata</h4>
-                <p>Name: @loophead.metadata.name</p>
-                <p>Description: @loophead.metadata.description</p>
-                <p>Image Url: @loophead.metadata.image</p>;
-                <p>External Uri: @loophead.metadata.externalUri</p>
-                <p>Cache Expiry Seconds: @loophead.metadata.cacheExpirySeconds</p>
-                <h4>Image</h4>
                 var loopheadImageUrl = cloudflareIpfsGatewayUrl + loophead.metadata.image.Remove(0, 7);
-                <img src="@loopheadImageUrl">
+                <div class="card" style="width: 300px;">
+                  <img src="@loopheadImageUrl" class="card-img-top" alt="loophead image">
+                  <div class="card-body">
+                    <p class="card-text">Name: @loophead.metadata.name</p>
+                    <p class="card-text">Description: @loophead.metadata.description</p>
+                    <p class="card-text">Image Url: @loophead.metadata.image</p>
+                    <p class="card-text">External Uri: @loophead.metadata.externalUri</p>
+                    <p class="card-text">Cache Expiry Seconds: @loophead.metadata.cacheExpirySeconds</p>
+                    @foreach(var trait in loophead.metadata.attributes)
+                    {
+                        <p class="card-text">Trait type: @trait.traitType</p>
+                        <p class="card-text">Value: @trait.value</p>
+                    }
+                 </div>
+                </div>
             }
         }
     }
@@ -42,7 +49,9 @@ else
 
 @code {
     private List<Loophead> loopheads = new List<Loophead>();
-    private string contractAddress = "0xe06c7DcBB0C11F0DC2c9Fbf7423925A59543a4A2";
+
+    [Parameter]
+    public string contractAddress { get; set; }
     private string cloudflareIpfsGatewayUrl = "https://cloudflare-ipfs.com/ipfs/";
 
     protected override async Task OnInitializedAsync()

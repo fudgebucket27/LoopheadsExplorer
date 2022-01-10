@@ -12,6 +12,6 @@ namespace LoopheadsExplorer.Models
         public string externalUri { get; set; }
         [JsonProperty(PropertyName = "cache_expiry_seconds")]
         public int cacheExpirySeconds { get; set; }
-        List<LoopheadTrait> attributes { get; set; }
+        public List<LoopheadTrait> attributes { get; set; }
     }
 }

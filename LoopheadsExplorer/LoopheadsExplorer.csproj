@@ -11,8 +11,4 @@
     <PackageReference Include="RestSharp" Version="107.0.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Helpers\" />
-  </ItemGroup>
-
 </Project>

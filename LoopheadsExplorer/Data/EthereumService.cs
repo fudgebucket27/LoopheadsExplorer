@@ -14,7 +14,7 @@ namespace LoopheadsExplorer.Data
                 var contract = web3.Eth.GetContract(contractABI, contractAddress);
                 var function = contract.GetFunction("baseTokenURI");
                 var baseUri = await function.CallAsync<string>();
-                return baseUri;
+                return baseUri.Remove(0,7);
             }
             catch(Exception e)
             {

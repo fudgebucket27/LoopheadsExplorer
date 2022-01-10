@@ -1,20 +1,48 @@
 ﻿@page "/collectionOne"
 @using LoopheadsExplorer.Data
+@using LoopheadsExplorer.Models
 @inject EthereumService EthereumService
+@inject IpfsService IpfsService
 
 
 <PageTitle>Collection #1</PageTitle>
 
 
-<h1>Collection #1</h1>
-
-<p>Token BaseUri: @baseUri</p>
+<h2>Collection #1</h2>
+@if(loopheads.Count == 0)
+{
+    <p>Retrieving data...</p>
+}
+else
+{
+    for(int i = 0; i < 5; i++)
+    {
+        List<Loophead> loopheadCollection = loopheads.Where(x => x.BaseId == i.ToString()).ToList();
+        <h2>Loophead #@i</h2>
+        foreach(var loophead in loopheadCollection)
+        {
+            <h3>Variation #@loophead.Variation</h3>
+        }
+    }
+}
 
 @code {
-    private string baseUri = "";
+    private List<Loophead> loopheads = new List<Loophead>();
 
     protected override async Task OnInitializedAsync()
     {
-        baseUri = await EthereumService.GetLoopheadBaseUri("0xe06c7DcBB0C11F0DC2c9Fbf7423925A59543a4A2");
+        string baseUri = await EthereumService.GetLoopheadBaseUri("0xe06c7DcBB0C11F0DC2c9Fbf7423925A59543a4A2");
+        IpfsData ipfsDataLevelOne = await IpfsService.GetDirectoryContents(baseUri);
+        IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(ipfsDataLevelOne.links[0].Cid.value);
+        foreach(var link in ipfsDataLevelTwo.links)
+        {
+            Loophead loophead = new Loophead
+            {
+                    BaseId = link.Name.Split('_')[0],
+                    Variation = link.Name.Split('_')[1],
+                    MetadataCidLink = link.Cid.value
+            };
+            loopheads.Add(loophead);
+        }
     }
 }

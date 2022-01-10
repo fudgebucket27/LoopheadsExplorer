@@ -9,6 +9,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<EthereumService>();
+builder.Services.AddSingleton<IpfsService>();
 
 var app = builder.Build();
 

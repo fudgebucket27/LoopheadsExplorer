@@ -9,6 +9,7 @@
 
 
 <h2>Collection #1</h2>
+<a href="https://etherscan.io/address/@contractAddress">Contract Address: @contractAddress </a>
 @if(loopheads.Count == 0)
 {
     <p>Retrieving data...</p>
@@ -28,10 +29,11 @@ else
 
 @code {
     private List<Loophead> loopheads = new List<Loophead>();
+    private string contractAddress = "0xe06c7DcBB0C11F0DC2c9Fbf7423925A59543a4A2";
 
     protected override async Task OnInitializedAsync()
     {
-        string baseUri = await EthereumService.GetLoopheadBaseUri("0xe06c7DcBB0C11F0DC2c9Fbf7423925A59543a4A2");
+        string baseUri = await EthereumService.GetLoopheadBaseUri(contractAddress);
         IpfsData ipfsDataLevelOne = await IpfsService.GetDirectoryContents(baseUri);
         IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(ipfsDataLevelOne.links[0].Cid.value);
         foreach(var link in ipfsDataLevelTwo.links)

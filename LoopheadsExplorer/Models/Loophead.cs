@@ -2,6 +2,7 @@
 {
     public class Loophead
     {
+        public string baseCid { get; set; }
         public string baseId { get; set; }
         public string variation { get; set; }
         public string metadataCidLink {get;set;}

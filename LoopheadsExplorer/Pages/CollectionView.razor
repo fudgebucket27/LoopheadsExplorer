@@ -48,7 +48,7 @@ else
 }
 
 @code {
-    private List<Loophead> loopheads = new List<Loophead>();
+    private List<Loophead> loopheads;
 
     [Parameter]
     public string contractAddress { get; set; }
@@ -58,6 +58,25 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        loopheads = new List<Loophead>();
+        string baseUri = await EthereumService.GetLoopheadBaseUri(contractAddress);
+        IpfsData ipfsDataLevelOne = await IpfsService.GetDirectoryContents(baseUri);
+        IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(ipfsDataLevelOne.links[0].Cid.value);
+        foreach(var link in ipfsDataLevelTwo.links)
+        {
+            Loophead loophead = new Loophead
+            {
+                    baseId = link.Name.Split('_')[0],
+                    variation = link.Name.Split('_')[1],
+                    metadataCidLink = link.Cid.value
+            };
+            loopheads.Add(loophead);
+        }      
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        loopheads = new List<Loophead>();
         string baseUri = await EthereumService.GetLoopheadBaseUri(contractAddress);
         IpfsData ipfsDataLevelOne = await IpfsService.GetDirectoryContents(baseUri);
         IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(ipfsDataLevelOne.links[0].Cid.value);

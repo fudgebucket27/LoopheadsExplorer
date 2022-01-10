@@ -1,4 +1,4 @@
 # LoopheadsExplorer
 Blazor App to view Loopheads NFT collection
 
-https://loopheadsexplorer.azurewebsites.ne
+https://loopheadsexplorer.azurewebsites.net

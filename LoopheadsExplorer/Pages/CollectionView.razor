@@ -1,14 +1,14 @@
-﻿@page "/collectionView/{contractAddress}"
+﻿@page "/collectionView/{contractAddress}/{collectionId}"
 @using LoopheadsExplorer.Data
 @using LoopheadsExplorer.Models
 @inject EthereumService EthereumService
 @inject IpfsService IpfsService
 
 
-<PageTitle>Collection #1</PageTitle>
+<PageTitle>Collection @collectionId</PageTitle>
 
 
-<h2>Collection #1</h2>
+<h2>Collection #@collectionId</h2>
 <a href="https://etherscan.io/address/@contractAddress" target="_blank">Contract Address: @contractAddress </a>
 @if(loopheads.Count == 0)
 {
@@ -52,6 +52,8 @@ else
 
     [Parameter]
     public string contractAddress { get; set; }
+    [Parameter]
+    public string collectionId { get; set; }
     private string cloudflareIpfsGatewayUrl = "https://cloudflare-ipfs.com/ipfs/";
 
     protected override async Task OnInitializedAsync()

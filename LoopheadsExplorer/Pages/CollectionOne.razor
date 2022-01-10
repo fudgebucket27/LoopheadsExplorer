@@ -1,0 +1,20 @@
+﻿@page "/collectionOne"
+@using LoopheadsExplorer.Data
+@inject EthereumService EthereumService
+
+
+<PageTitle>Collection #1</PageTitle>
+
+
+<h1>Collection #1</h1>
+
+<p>Token BaseUri: @baseUri</p>
+
+@code {
+    private string baseUri = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        baseUri = await EthereumService.GetLoopheadBaseUri("0xe06c7DcBB0C11F0DC2c9Fbf7423925A59543a4A2");
+    }
+}

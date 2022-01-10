@@ -5,6 +5,6 @@
         public string name { get; set; }
         public string cid { get; set; }
 
-        public List<Loophead> loopheads { get; set; }
+        public List<Loophead> loopheads = new List<Loophead>();
     }
 }

@@ -1,6 +1,7 @@
 ﻿@page "/collectionView/{ipfSAddress}/{collectionId}"
 @using LoopheadsExplorer.Data
 @using LoopheadsExplorer.Models
+@using System.Diagnostics
 @inject EthereumService EthereumService
 @inject IpfsService IpfsService
 
@@ -13,9 +14,21 @@
 }
 else
 {
-    for (int i = 0; i < loopheadIpfsLinks.Count; i++)
+    for (int i = 0; i < loopheadIpfsLinks.Count - 1; i++)
     {
-        <h2>Loophead #@i</h2>
+        <h2>Loophead #@i <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadMetadataLinks(e, loopheadIpfsLinks[i].cid))">View variations</button></h2>
+        @if(loopheadIpfsLinks.Any(x => x.loopheads.Count > 0))
+        {
+            var loopheadVariations = loopheadIpfsLinks.Where(x => x.cid == loopheadIpfsLinks[i].cid);
+            foreach(var variation in loopheadVariations)
+            {
+                foreach(var loophead in variation.loopheads)
+                {
+                    <p>@loophead.baseId + @loophead.variation</p>
+                }
+            }
+        }
+
     }
        /*
     for(int i = 0; i < loopheads.Count; i++)
@@ -51,7 +64,6 @@ else
 }
 
 @code {
-    private List<Loophead> loopheads;
     private List<LoopheadIpfsLink> loopheadIpfsLinks;
 
     [Parameter]
@@ -63,7 +75,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        loopheads = new List<Loophead>();
         loopheadIpfsLinks = new List<LoopheadIpfsLink>();
         //string baseUri = await EthereumService.GetLoopheadBaseUri(contractAddress);
         IpfsData ipfsDataLevelOne = await IpfsService.GetDirectoryContents(ipfsAddress);
@@ -101,9 +112,17 @@ else
         {
             foreach(var ipfsLink in loopheadIpfsLinks)
             {
+                //Debug.WriteLine(ipfsLink.cid);
+                //Debug.WriteLine(loopheadMetadataLink);
                 if(ipfsLink.cid == loopheadMetadataLink)
                 {
-                    ipfsLink.cid = loopheadMetadataLink;
+                    Loophead loophead = new Loophead
+                        {
+                            baseId = link.Name.Split('_')[0],
+                            variation = link.Name.Split('_')[1],
+                            metadataCidLink = link.Cid.value
+                        };
+                        ipfsLink.loopheads.Add(loophead);
                     break;
                 }
             }
@@ -111,6 +130,7 @@ else
         StateHasChanged();
     }
 
+    /*
     private async void GetLoopheadMetadata(MouseEventArgs e, string loopheadMetadataLink)
     {
         IpfsData ipfsDataLevelThree = await IpfsService.GetDirectoryContents(loopheadMetadataLink);
@@ -125,4 +145,6 @@ else
         }
         StateHasChanged();
     }
+     */
+
 }

@@ -22,9 +22,8 @@ else
         <h2>Loophead #@i</h2>
         foreach(var loophead in loopheadCollection)
         {
-            <h3>Variation #@loophead.variation</h3>
-            <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadMetadata(e, loophead.metadataCidLink))">View metadata</button>
-           
+            <h3>Variation #@loophead.variation <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadMetadata(e, loophead.metadataCidLink))">View</button></h3>
+
             if(@loophead.metadata != null)
             {
                 <h4>Metadata</h4>
@@ -33,6 +32,9 @@ else
                 <p>Image Url: @loophead.metadata.image</p>;
                 <p>External Uri: @loophead.metadata.externalUri</p>
                 <p>Cache Expiry Seconds: @loophead.metadata.cacheExpirySeconds</p>
+                <h4>Image</h4>
+                var loopheadImageUrl = cloudflareIpfsGatewayUrl + loophead.metadata.image.Remove(0, 7);
+                <img src="@loopheadImageUrl">
             }
         }
     }
@@ -41,6 +43,7 @@ else
 @code {
     private List<Loophead> loopheads = new List<Loophead>();
     private string contractAddress = "0xe06c7DcBB0C11F0DC2c9Fbf7423925A59543a4A2";
+    private string cloudflareIpfsGatewayUrl = "https://cloudflare-ipfs.com/ipfs/";
 
     protected override async Task OnInitializedAsync()
     {

@@ -6,7 +6,7 @@
 
 
 <PageTitle>Collection</PageTitle>
-<h1>Collection #@collectionIdn</h1>
+<h1>Collection #@collectionId</h1>
 @if(loopheadIpfsLinks.Count == 0)
 {
     <p>Retrieving data...</p>
@@ -96,10 +96,17 @@ else
 
     private async void GetLoopheadMetadataLinks(MouseEventArgs e, string loopheadMetadataLink)
     {
-        IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(loopheadMetadataLink)
+        IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(loopheadMetadataLink);
         foreach(var link in ipfsDataLevelTwo.links)
         {
-            
+            foreach(var ipfsLink in loopheadIpfsLinks)
+            {
+                if(ipfsLink.cid == loopheadMetadataLink)
+                {
+                    ipfsLink.cid = loopheadMetadataLink;
+                    break;
+                }
+            }
         }
         StateHasChanged();
     }

@@ -23,9 +23,17 @@ else
         foreach(var loophead in loopheadCollection)
         {
             <h3>Variation #@loophead.variation</h3>
-            Loophead tempLoophead = loophead;
-            <button @onlick="( () => GetLoopheadMetadata(tempLoophead))">View metadata</button>
-            <p></p>
+            <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadMetadata(e, loophead.metadataCidLink))">View metadata</button>
+           
+            if(@loophead.metadata != null)
+            {
+                <h4>Metadata</h4>
+                <p>Name: @loophead.metadata.name</p>
+                <p>Description: @loophead.metadata.description</p>
+                <p>Image Url: @loophead.metadata.image</p>;
+                <p>External Uri: @loophead.metadata.externalUri</p>
+                <p>Cache Expiry Seconds: @loophead.metadata.cacheExpirySeconds</p>
+            }
         }
     }
 }
@@ -41,7 +49,6 @@ else
         IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(ipfsDataLevelOne.links[0].Cid.value);
         foreach(var link in ipfsDataLevelTwo.links)
         {
-      
             Loophead loophead = new Loophead
             {
                     baseId = link.Name.Split('_')[0],
@@ -52,9 +59,18 @@ else
         }
     }
 
-    protected async Task GetLoopheadMetadata(Loophead loophead)
+    private async void GetLoopheadMetadata(MouseEventArgs e, string loopheadMetadataLink)
     {
-        IpfsData ipfsDataLevelThree = await IpfsService.GetDirectoryContents(loophead.metadataCidLink);
+        IpfsData ipfsDataLevelThree = await IpfsService.GetDirectoryContents(loopheadMetadataLink);
         LoopheadMetadata loopheadMetadata = await IpfsService.GetLoopheadMetadata(ipfsDataLevelThree.links[0].Cid.value);
+        foreach(var loophead in loopheads)
+        {
+            if(loophead.metadataCidLink == loopheadMetadataLink)
+            {
+                loophead.metadata = loopheadMetadata;
+                break;
+            }
+        }
+        StateHasChanged();
     }
 }

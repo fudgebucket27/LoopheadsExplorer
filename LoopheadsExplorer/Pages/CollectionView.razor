@@ -1,22 +1,24 @@
-﻿@page "/collectionView/{contractAddress}/{collectionId}"
+﻿@page "/collectionView/{ipfSAddress}/{collectionId}"
 @using LoopheadsExplorer.Data
 @using LoopheadsExplorer.Models
 @inject EthereumService EthereumService
 @inject IpfsService IpfsService
 
 
-<PageTitle>Collection @collectionId</PageTitle>
-
-
-<h2>Collection #@collectionId</h2>
-<a href="https://etherscan.io/address/@contractAddress" target="_blank">Contract Address: @contractAddress </a>
-@if(loopheads.Count == 0)
+<PageTitle>Collection</PageTitle>
+<h1>Collection #@collectionIdn</h1>
+@if(loopheadIpfsLinks.Count == 0)
 {
     <p>Retrieving data...</p>
 }
 else
 {
-    for(int i = 0; i < 5; i++)
+    for (int i = 0; i < loopheadIpfsLinks.Count; i++)
+    {
+        <h2>Loophead #@i</h2>
+    }
+       /*
+    for(int i = 0; i < loopheads.Count; i++)
     {
         List<Loophead> loopheadCollection = loopheads.Where(x => x.baseId == i.ToString()).ToList();
         <h2>Loophead #@i</h2>
@@ -45,51 +47,61 @@ else
             }
         }
     }
+    */
 }
 
 @code {
     private List<Loophead> loopheads;
+    private List<LoopheadIpfsLink> loopheadIpfsLinks;
 
     [Parameter]
-    public string contractAddress { get; set; }
+    public string ipfsAddress { get; set; }
     [Parameter]
     public string collectionId { get; set; }
+
     private string cloudflareIpfsGatewayUrl = "https://cloudflare-ipfs.com/ipfs/";
 
     protected override async Task OnInitializedAsync()
     {
         loopheads = new List<Loophead>();
-        string baseUri = await EthereumService.GetLoopheadBaseUri(contractAddress);
-        IpfsData ipfsDataLevelOne = await IpfsService.GetDirectoryContents(baseUri);
-        IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(ipfsDataLevelOne.links[0].Cid.value);
-        foreach(var link in ipfsDataLevelTwo.links)
+        loopheadIpfsLinks = new List<LoopheadIpfsLink>();
+        //string baseUri = await EthereumService.GetLoopheadBaseUri(contractAddress);
+        IpfsData ipfsDataLevelOne = await IpfsService.GetDirectoryContents(ipfsAddress);
+        //IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(ipfsDataLevelOne.links[0].Cid.value)
+        foreach(var links in ipfsDataLevelOne.links)
         {
-            Loophead loophead = new Loophead
+            if(links.Name != "mint-params.json")
             {
+                LoopheadIpfsLink loopheadIpfsLink = new LoopheadIpfsLink
+                {
+                    name = links.Name,
+                    cid = links.Cid.value
+                };
+                loopheadIpfsLinks.Add(loopheadIpfsLink);
+            }
+        }
+        /*
+        foreach(var link in ipfsDataLevelTwo.links)
+            {
+            Loophead loophead = new Loophead
+                    {
                     baseId = link.Name.Split('_')[0],
                     variation = link.Name.Split('_')[1],
                     metadataCidLink = link.Cid.value
             };
             loopheads.Add(loophead);
-        }      
+        }   
+         */   
     }
 
-    protected override async Task OnParametersSetAsync()
+    private async void GetLoopheadMetadataLinks(MouseEventArgs e, string loopheadMetadataLink)
     {
-        loopheads = new List<Loophead>();
-        string baseUri = await EthereumService.GetLoopheadBaseUri(contractAddress);
-        IpfsData ipfsDataLevelOne = await IpfsService.GetDirectoryContents(baseUri);
-        IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(ipfsDataLevelOne.links[0].Cid.value);
+        IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(loopheadMetadataLink)
         foreach(var link in ipfsDataLevelTwo.links)
         {
-            Loophead loophead = new Loophead
-            {
-                    baseId = link.Name.Split('_')[0],
-                    variation = link.Name.Split('_')[1],
-                    metadataCidLink = link.Cid.value
-            };
-            loopheads.Add(loophead);
+            
         }
+        StateHasChanged();
     }
 
     private async void GetLoopheadMetadata(MouseEventArgs e, string loopheadMetadataLink)

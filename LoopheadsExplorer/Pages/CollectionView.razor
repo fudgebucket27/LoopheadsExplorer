@@ -38,7 +38,7 @@ else
                       string variationNavTabId = "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString() + "-tab";
                       string variationNavTabTarget = "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString();
                       <li class="nav-item" role="presentation">
-                          <button class="nav-link" id="@variationNavTabId"  data-bs-toggle="tab" data-bs-target="#@variationNavTabTarget" type="button" role="tab" aria-controls="@variationNavTabTarget" aria-selected="false">@loopheadVariations.baseId-@loopheadVariations.variation</button>
+                          <button class="nav-link" id="@variationNavTabId"  data-bs-toggle="tab" data-bs-target="#@variationNavTabTarget" type="button" role="tab" aria-controls="@variationNavTabTarget" aria-selected="false" @onclick="@(e => GetLoopheadMetadata(e, loopheadVariations.metadataCidLink))">@loopheadVariations.baseId-@loopheadVariations.variation</button>
                       </li>
                         //<h3>Variation #@loopheadVariations.baseId-@loopheadVariations.variation <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadMetadata(e, loopheadVariations.metadataCidLink))">View metadata</button></h3>
 
@@ -54,6 +54,10 @@ else
                             string variationTabPaneId =  "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString();
                             string variationTabPaneTarget =  "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString() + "-tab";
                             <div class="tab-pane fade" id="@variationTabPaneId" role="tabpanel" aria-labelledby="@variationTabPaneTarget">
+                                 @if (loopheadVariations.metadata != null)
+                                 {
+                                     <LoopheadMetadataView loopheadMetadata="loopheadVariations.metadata" ipfsGatewayUrl="@cloudflareIpfsGatewayUrl" />
+                                 }
                             </div>
                         }                        
                     }

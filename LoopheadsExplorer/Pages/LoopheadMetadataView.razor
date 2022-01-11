@@ -1,0 +1,30 @@
+﻿@using LoopheadsExplorer.Models
+
+@{
+    var loopheadImageUrl = ipfsGatewayUrl + loopheadMetadata.image.Remove(0, 7);
+    <div class="card" style="width: 300px;">
+    <img src="@loopheadImageUrl" class="card-img-top" alt="loophead image">
+	<div class="card-body">
+        <p class="card-text">Name: @loopheadMetadata.name</p>
+        <p class="card-text">Description: @loopheadMetadata.description</p>
+        <p class="card-text">Image Url: @loopheadMetadata.image</p>
+        <p class="card-text">External Uri: @loopheadMetadata.externalUri</p>
+        <p class="card-text">Cache Expiry Seconds: @loopheadMetadata.cacheExpirySeconds</p>
+        @foreach (var trait in loopheadMetadata.attributes)
+        {
+            <p class="card-text">Trait type: @trait.traitType</p>
+            <p class="card-text">Value: @trait.value</p>
+        }
+    </div>
+</div>
+}
+
+
+@code {
+
+    [Parameter]
+    public LoopheadMetadata loopheadMetadata { get; set; }
+    [Parameter]
+    public string ipfsGatewayUrl { get; set; }
+
+}

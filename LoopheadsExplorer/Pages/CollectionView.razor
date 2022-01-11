@@ -24,7 +24,7 @@ else
         if(count != 1000)
         {   
             var tempCount = count;
-            <h2>Loophead #@collectionIdIncrement <button type="button" disabled=@variationButtonStates[tempCount] class="btn btn-primary" @onclick="@(e => GetLoopheadMetadataLinks(e, loopheadIpfsLink.cid, tempCount))">View variations</button></h2>
+            <h2>Loophead #@collectionIdIncrement <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadMetadataLinks(e, loopheadIpfsLink.cid, tempCount))">View variations</button></h2>
         }
         @if(loopheadIpfsLinks.Any(x => x.loopheads.Count > 0))
         {

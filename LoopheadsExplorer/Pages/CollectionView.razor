@@ -101,44 +101,54 @@ else
     {
         variationButtonStates[buttonId] = true;
         IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(loopheadMetadataLink);
-        foreach(var link in ipfsDataLevelTwo.links)
+        if(ipfsDataLevelTwo != null)
         {
-            foreach(var ipfsLink in loopheadIpfsLinks)
+            foreach(var link in ipfsDataLevelTwo.links)
             {
-                //Debug.WriteLine(ipfsLink.cid);
-                //Debug.WriteLine(loopheadMetadataLink);
-                if(ipfsLink.cid == loopheadMetadataLink)
+                foreach(var ipfsLink in loopheadIpfsLinks)
                 {
-                    Loophead loophead = new Loophead
-                        {
-                            baseCid = loopheadMetadataLink,
-                            baseId = link.Name.Split('_')[0],
-                            variation = link.Name.Split('_')[1],
-                            metadataCidLink = link.Cid.value
-                        };
-                    ipfsLink.loopheads.Add(loophead);
-                    break;
+                    //Debug.WriteLine(ipfsLink.cid);
+                    //Debug.WriteLine(loopheadMetadataLink);
+                    if(ipfsLink.cid == loopheadMetadataLink)
+                    {
+                        Loophead loophead = new Loophead
+                            {
+                                baseCid = loopheadMetadataLink,
+                                baseId = link.Name.Split('_')[0],
+                                variation = link.Name.Split('_')[1],
+                                metadataCidLink = link.Cid.value
+                            };
+                        ipfsLink.loopheads.Add(loophead);
+                        break;
+                    }
                 }
             }
-        }
-        StateHasChanged();
+            StateHasChanged();
+        }        
     }
 
     private async void GetLoopheadMetadata(MouseEventArgs e, string loopheadMetadataLink)
     {
         IpfsData ipfsDataLevelThree = await IpfsService.GetDirectoryContents(loopheadMetadataLink);
-        LoopheadMetadata loopheadMetadata = await IpfsService.GetLoopheadMetadata(ipfsDataLevelThree.links[0].Cid.value);
-        foreach(var ipfsLink in loopheadIpfsLinks)
+        if(ipfsDataLevelThree != null)
         {
-            foreach(var loophead in ipfsLink.loopheads)
+            LoopheadMetadata loopheadMetadata = await IpfsService.GetLoopheadMetadata(ipfsDataLevelThree.links[0].Cid.value);
+            if(loopheadMetadata != null)
             {
-                if(loophead.metadataCidLink == loopheadMetadataLink)
+                foreach(var ipfsLink in loopheadIpfsLinks)
                 {
-                    loophead.metadata = loopheadMetadata;
-                    break;
+                    foreach(var loophead in ipfsLink.loopheads)
+                    {
+                        if(loophead.metadataCidLink == loopheadMetadataLink)
+                        {
+                            loophead.metadata = loopheadMetadata;
+                            break;
+                        }
+                    }
                 }
+                StateHasChanged();
             }
         }
-        StateHasChanged();
+
     }
 }

@@ -1,4 +1,4 @@
-﻿@page "/collectionView/{ipfSAddress}/{collectionId}"
+﻿@page "/collectionView/{ipfSAddress}/{collectionId}/{increment}"
 @using LoopheadsExplorer.Data
 @using LoopheadsExplorer.Models
 @using System.Diagnostics
@@ -16,12 +16,13 @@ else
 {
     int count = 0;
     int collectionCount = 1;
+    
     foreach(var loopheadIpfsLink in loopheadIpfsLinks)
     {
         if(count != 1000)
-        {
+        {   int collectionIdIncrement = collectionCount + Int32.Parse(increment);
             var tempCount = count;
-            <h2>Loophead #@collectionCount <button type="button" disabled=@variationButtonStates[tempCount] class="btn btn-primary" @onclick="@(e => GetLoopheadMetadataLinks(e, loopheadIpfsLink.cid, tempCount))">View variations</button></h2>
+            <h2>Loophead #@collectionIdIncrement <button type="button" disabled=@variationButtonStates[tempCount] class="btn btn-primary" @onclick="@(e => GetLoopheadMetadataLinks(e, loopheadIpfsLink.cid, tempCount))">View variations</button></h2>
         }
         @if(loopheadIpfsLinks.Any(x => x.loopheads.Count > 0))
         {
@@ -68,6 +69,9 @@ else
     public string ipfsAddress { get; set; }
     [Parameter]
     public string collectionId { get; set; }
+    [Parameter]
+    public string increment { get; set; }
+
 
     private string cloudflareIpfsGatewayUrl = "https://cloudflare-ipfs.com/ipfs/";
 

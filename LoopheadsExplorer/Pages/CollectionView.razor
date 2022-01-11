@@ -19,8 +19,9 @@ else
     
     foreach(var loopheadIpfsLink in loopheadIpfsLinks)
     {
+        int collectionIdIncrement = collectionCount + Int32.Parse(increment);
         if(count != 1000)
-        {   int collectionIdIncrement = collectionCount + Int32.Parse(increment);
+        {   
             var tempCount = count;
             <h2>Loophead #@collectionIdIncrement <button type="button" disabled=@variationButtonStates[tempCount] class="btn btn-primary" @onclick="@(e => GetLoopheadMetadataLinks(e, loopheadIpfsLink.cid, tempCount))">View variations</button></h2>
         }
@@ -32,9 +33,10 @@ else
                 {
                     if (loopheadVariations.baseCid == loopheadIpfsLink.cid)
                     {
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="example" data-bs-toggle="tab" data-bs-target="#example" type="button" role="tab" aria-controls="Example" aria-selected="true">Tab</button>
-                        </li>
+                      string variationNavTabId = collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString();
+                            <li class="nav-item" role="presentation">
+                               <button class="nav-link" id="c" data-bs-toggle="tab" data-bs-target="#@loopheadVariations.variation" type="button" role="tab" aria-controls="@loopheadVariations.variation" aria-selected="false">@loopheadVariations.baseId-@loopheadVariations.variation</button>
+                            </li>
                         //<h3>Variation #@loopheadVariations.baseId-@loopheadVariations.variation <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadMetadata(e, loopheadVariations.metadataCidLink))">View metadata</button></h3>
                         if (@loopheadVariations.metadata != null)
                         {
@@ -58,6 +60,12 @@ else
                     }
                 }
                 </ul>
+                <div class="tab-content" id="myTabContent">
+                    @foreach (var loopheadVariations in loopheadIpfsLink.loopheads)
+                    {
+                        <div class="tab-pane fade" id="@loopheadVariations.variation" role="tabpanel" aria-labelledby="@loopheadVariations.variation"><h1>Test</h1></div>
+                    }
+                </div>
             }
         }
         count++;

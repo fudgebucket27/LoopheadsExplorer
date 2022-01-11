@@ -26,6 +26,7 @@ namespace LoopheadsExplorer.Data
                 .AddParameter("arg", ipfsHash)
                 .AddParameter("output-codec", "dag-json")
                 ;
+            Thread.Sleep(500);
             var response = await _client.GetAsync(request);
             var data = JsonConvert.DeserializeObject<IpfsData>(response.Content);
             return data;
@@ -37,6 +38,7 @@ namespace LoopheadsExplorer.Data
                 .AddParameter("arg", ipfsHash)
                 .AddParameter("output-codec", "dag-json")
                 ;
+            Thread.Sleep(500);
             var response = await _client.GetAsync(request);
             var data = JsonConvert.DeserializeObject<IpfsData>(response.Content);
             var metadataBase64String = data.data;

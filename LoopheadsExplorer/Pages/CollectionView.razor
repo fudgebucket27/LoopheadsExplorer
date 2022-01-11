@@ -8,6 +8,32 @@
 
 <PageTitle>Collection</PageTitle>
 <h1>Collection #@collectionId</h1>
+
+!-- Nav tabs -->
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Home</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Profile</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="messages-tab" data-bs-toggle="tab" data-bs-target="#messages" type="button" role="tab" aria-controls="messages" aria-selected="false">Messages</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false">Settings</button>
+  </li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+  <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">1</div>
+  <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">2</div>
+  <div class="tab-pane" id="messages" role="tabpanel" aria-labelledby="messages-tab">3</div>
+  <div class="tab-pane" id="settings" role="tabpanel" aria-labelledby="settings-tab">4</div>
+</div>
+
+
 @if(loopheadIpfsLinks.Count == 0)
 {
     <p>Retrieving data...</p>
@@ -28,15 +54,17 @@ else
         @if(loopheadIpfsLinks.Any(x => x.loopheads.Count > 0))
         {
             @:@{
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                var tabId = "myTab" + collectionCount.ToString();
+                <ul class="nav nav-tabs" id="@tabId" role="tablist">
                 @foreach (var loopheadVariations in loopheadIpfsLink.loopheads)
                 {
                     if (loopheadVariations.baseCid == loopheadIpfsLink.cid)
                     {
-                      string variationNavTabId = collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString();
-                            <li class="nav-item" role="presentation">
-                               <button class="nav-link" id="c" data-bs-toggle="tab" data-bs-target="#@loopheadVariations.variation" type="button" role="tab" aria-controls="@loopheadVariations.variation" aria-selected="false">@loopheadVariations.baseId-@loopheadVariations.variation</button>
-                            </li>
+                      string variationNavTabId = collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString() + "-tab";
+                      string variationNavTabTarget = collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString();
+                      <li class="nav-item" role="presentation">
+                          <button class="nav-link" id="@variationNavTabId"  data-bs-toggle="tab" data-bs-target="#@variationNavTabTarget" type="button" role="tab" aria-controls="@variationNavTabTarget" aria-selected="false">@loopheadVariations.baseId-@loopheadVariations.variation</button>
+                      </li>
                         //<h3>Variation #@loopheadVariations.baseId-@loopheadVariations.variation <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadMetadata(e, loopheadVariations.metadataCidLink))">View metadata</button></h3>
                         if (@loopheadVariations.metadata != null)
                         {
@@ -60,10 +88,16 @@ else
                     }
                 }
                 </ul>
-                <div class="tab-content" id="myTabContent">
+                var tabContentId = "myTabContent" + collectionCount.ToString();
+                <div class="tab-content" id="@tabContentId">
                     @foreach (var loopheadVariations in loopheadIpfsLink.loopheads)
                     {
-                        <div class="tab-pane fade" id="@loopheadVariations.variation" role="tabpanel" aria-labelledby="@loopheadVariations.variation"><h1>Test</h1></div>
+                        if (loopheadVariations.baseCid == loopheadIpfsLink.cid)
+                        {
+                            string variationTabPaneId = collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString();
+                            string variationTabPaneTarget = collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString() + "-tab";
+                            <div class="tab-pane fade" id="@variationTabPaneId" role="tabpanel" aria-labelledby="@variationTabPaneTarget"><h1>Test</h1></div>
+                        }                        
                     }
                 </div>
             }

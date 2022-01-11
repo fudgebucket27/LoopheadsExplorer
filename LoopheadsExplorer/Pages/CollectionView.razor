@@ -8,6 +8,7 @@
 
 <PageTitle>Collection</PageTitle>
 <h1>Collection #@collectionId</h1>
+
 @if(loopheadIpfsLinks.Count == 0)
 {
     <p>Retrieving data...</p>
@@ -19,38 +20,46 @@ else
     
     foreach(var loopheadIpfsLink in loopheadIpfsLinks)
     {
+        int collectionIdIncrement = collectionCount + Int32.Parse(increment);
         if(count != 1000)
-        {   int collectionIdIncrement = collectionCount + Int32.Parse(increment);
+        {   
             var tempCount = count;
-            <h2>Loophead #@collectionIdIncrement <button type="button" disabled=@variationButtonStates[tempCount] class="btn btn-primary" @onclick="@(e => GetLoopheadMetadataLinks(e, loopheadIpfsLink.cid, tempCount))">View variations</button></h2>
+            <h2>Loophead #@collectionIdIncrement <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadMetadataLinks(e, loopheadIpfsLink.cid, tempCount))">View variations</button></h2>
         }
         @if(loopheadIpfsLinks.Any(x => x.loopheads.Count > 0))
         {
-            foreach(var loopheadVariations in loopheadIpfsLink.loopheads)
-            {
-                if(loopheadVariations.baseCid == loopheadIpfsLink.cid)
+            @:@{
+                var tabId = "myTab" + collectionCount.ToString();
+                <ul class="nav nav-pills" id="@tabId" role="tablist">
+                @foreach (var loopheadVariations in loopheadIpfsLink.loopheads)
                 {
-                    <h3>Variation #@loopheadVariations.baseId-@loopheadVariations.variation <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadMetadata(e, loopheadVariations.metadataCidLink))">View metadata</button></h3>
-                     if(@loopheadVariations.metadata != null)
-                     {
-                        var loopheadImageUrl = cloudflareIpfsGatewayUrl + loopheadVariations.metadata.image.Remove(0, 7);
-                        <div class="card" style="width: 300px;">
-                          <img src="@loopheadImageUrl" class="card-img-top" alt="loophead image">
-                          <div class="card-body">
-                            <p class="card-text">Name: @loopheadVariations.metadata.name</p>
-                            <p class="card-text">Description: @loopheadVariations.metadata.description</p>
-                            <p class="card-text">Image Url: @loopheadVariations.metadata.image</p>
-                            <p class="card-text">External Uri: @loopheadVariations.metadata.externalUri</p>
-                            <p class="card-text">Cache Expiry Seconds: @loopheadVariations.metadata.cacheExpirySeconds</p>
-                            @foreach(var trait in loopheadVariations.metadata.attributes)
-                            {
-                                <p class="card-text">Trait type: @trait.traitType</p>
-                                <p class="card-text">Value: @trait.value</p>
-                            }
-                         </div>
-                        </div>
-                     }
+                    if (loopheadVariations.baseCid == loopheadIpfsLink.cid)
+                    {
+                      string variationNavTabId = "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString() + "-tab";
+                      string variationNavTabTarget = "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString();
+                      <li class="nav-item" role="presentation">
+                          <button class="nav-link" id="@variationNavTabId"  data-bs-toggle="pill" data-bs-target="#@variationNavTabTarget" type="button" role="tab" aria-controls="@variationNavTabTarget" aria-selected="false" @onclick="@(e => GetLoopheadMetadata(e, loopheadVariations.metadataCidLink))">@loopheadVariations.baseId-@loopheadVariations.variation</button>
+                      </li>
+                    }
                 }
+                </ul>
+                var tabContentId = "myTabContent" + collectionCount.ToString();
+                <div class="tab-content" id="@tabContentId">
+                    @foreach (var loopheadVariations in loopheadIpfsLink.loopheads)
+                    {
+                        if (loopheadVariations.baseCid == loopheadIpfsLink.cid)
+                        {
+                            string variationTabPaneId =  "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString();
+                            string variationTabPaneTarget =  "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString() + "-tab";
+                            <div class="tab-pane fade" id="@variationTabPaneId" role="tabpanel" aria-labelledby="@variationTabPaneTarget">
+                                 @if (loopheadVariations.metadata != null)
+                                 {
+                                     <LoopheadMetadataView loopheadMetadata="loopheadVariations.metadata" ipfsGatewayUrl="@cloudflareIpfsGatewayUrl" />
+                                 }
+                            </div>
+                        }                        
+                    }
+                </div>
             }
         }
         count++;

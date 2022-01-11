@@ -30,7 +30,7 @@ else
         {
             @:@{
                 var tabId = "myTab" + collectionCount.ToString();
-                <ul class="nav nav-tabs" id="@tabId" role="tablist">
+                <ul class="nav nav-pills" id="@tabId" role="tablist">
                 @foreach (var loopheadVariations in loopheadIpfsLink.loopheads)
                 {
                     if (loopheadVariations.baseCid == loopheadIpfsLink.cid)
@@ -38,10 +38,8 @@ else
                       string variationNavTabId = "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString() + "-tab";
                       string variationNavTabTarget = "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString();
                       <li class="nav-item" role="presentation">
-                          <button class="nav-link" id="@variationNavTabId"  data-bs-toggle="tab" data-bs-target="#@variationNavTabTarget" type="button" role="tab" aria-controls="@variationNavTabTarget" aria-selected="false" @onclick="@(e => GetLoopheadMetadata(e, loopheadVariations.metadataCidLink))">@loopheadVariations.baseId-@loopheadVariations.variation</button>
+                          <button class="nav-link" id="@variationNavTabId"  data-bs-toggle="pill" data-bs-target="#@variationNavTabTarget" type="button" role="tab" aria-controls="@variationNavTabTarget" aria-selected="false" @onclick="@(e => GetLoopheadMetadata(e, loopheadVariations.metadataCidLink))">@loopheadVariations.baseId-@loopheadVariations.variation</button>
                       </li>
-                        //<h3>Variation #@loopheadVariations.baseId-@loopheadVariations.variation <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadMetadata(e, loopheadVariations.metadataCidLink))">View metadata</button></h3>
-
                     }
                 }
                 </ul>

@@ -26,31 +26,38 @@ else
         }
         @if(loopheadIpfsLinks.Any(x => x.loopheads.Count > 0))
         {
-            foreach(var loopheadVariations in loopheadIpfsLink.loopheads)
-            {
-                if(loopheadVariations.baseCid == loopheadIpfsLink.cid)
+            @:@{
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                @foreach (var loopheadVariations in loopheadIpfsLink.loopheads)
                 {
-                    <h3>Variation #@loopheadVariations.baseId-@loopheadVariations.variation <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadMetadata(e, loopheadVariations.metadataCidLink))">View metadata</button></h3>
-                     if(@loopheadVariations.metadata != null)
-                     {
-                        var loopheadImageUrl = cloudflareIpfsGatewayUrl + loopheadVariations.metadata.image.Remove(0, 7);
-                        <div class="card" style="width: 300px;">
-                          <img src="@loopheadImageUrl" class="card-img-top" alt="loophead image">
-                          <div class="card-body">
-                            <p class="card-text">Name: @loopheadVariations.metadata.name</p>
-                            <p class="card-text">Description: @loopheadVariations.metadata.description</p>
-                            <p class="card-text">Image Url: @loopheadVariations.metadata.image</p>
-                            <p class="card-text">External Uri: @loopheadVariations.metadata.externalUri</p>
-                            <p class="card-text">Cache Expiry Seconds: @loopheadVariations.metadata.cacheExpirySeconds</p>
-                            @foreach(var trait in loopheadVariations.metadata.attributes)
-                            {
-                                <p class="card-text">Trait type: @trait.traitType</p>
-                                <p class="card-text">Value: @trait.value</p>
-                            }
-                         </div>
-                        </div>
-                     }
+                    if (loopheadVariations.baseCid == loopheadIpfsLink.cid)
+                    {
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="example" data-bs-toggle="tab" data-bs-target="#example" type="button" role="tab" aria-controls="Example" aria-selected="true">Tab</button>
+                        </li>
+                        //<h3>Variation #@loopheadVariations.baseId-@loopheadVariations.variation <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadMetadata(e, loopheadVariations.metadataCidLink))">View metadata</button></h3>
+                        if (@loopheadVariations.metadata != null)
+                        {
+                            var loopheadImageUrl = cloudflareIpfsGatewayUrl + loopheadVariations.metadata.image.Remove(0, 7);
+                            <div class="card" style="width: 300px;">
+                                <img src="@loopheadImageUrl" class="card-img-top" alt="loophead image">
+                                <div class="card-body">
+                                    <p class="card-text">Name: @loopheadVariations.metadata.name</p>
+                                    <p class="card-text">Description: @loopheadVariations.metadata.description</p>
+                                    <p class="card-text">Image Url: @loopheadVariations.metadata.image</p>
+                                    <p class="card-text">External Uri: @loopheadVariations.metadata.externalUri</p>
+                                    <p class="card-text">Cache Expiry Seconds: @loopheadVariations.metadata.cacheExpirySeconds</p>
+                                    @foreach (var trait in loopheadVariations.metadata.attributes)
+                                    {
+                                        <p class="card-text">Trait type: @trait.traitType</p>
+                                        <p class="card-text">Value: @trait.value</p>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
                 }
+                </ul>
             }
         }
         count++;

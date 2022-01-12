@@ -6,14 +6,17 @@
         if(loopheadVariationRetrievalState.cid == ipfsLinkCid && loopheadVariationRetrievalState.retrievalState == VariationRetrievalState.retrieving)
         {
             <p>Retrieving variations...</p>
+            break;
         }
         else if(loopheadVariationRetrievalState.cid == ipfsLinkCid && loopheadVariationRetrievalState.retrievalState == VariationRetrievalState.error)
         {
             <p>Issue with retrieving variations, try again...</p>
+            break;
         }
         else if(loopheadVariationRetrievalState.cid == ipfsLinkCid && loopheadVariationRetrievalState.retrievalState == VariationRetrievalState.success)
         {
             //Don't display anything
+            break;
         }
     }
 }

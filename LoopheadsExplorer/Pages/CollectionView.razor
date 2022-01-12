@@ -23,11 +23,11 @@ else
         int collectionIdIncrement = collectionCount + Int32.Parse(increment);
         if(count != 1000)
         {   
-            var tempCount = count;
-            <h2>Loophead #@collectionIdIncrement <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadMetadataLinks(e, loopheadIpfsLink.cid, tempCount))">View variations</button></h2>
+            <h2>Loophead #@collectionIdIncrement <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadVariationMetadataLinks(e, loopheadIpfsLink.cid))">View variations</button></h2>
         }
-        @if(loopheadIpfsLinks.Any(x => x.loopheads.Count > 0))
-        {
+        <LoopheadVariationRetrievalStateView loopheadVariationRetrievalStates="@loopheadVariationRetrievalStates" ipfsLinkCid="@loopheadIpfsLink.cid"/> 
+        @if(loopheadIpfsLinks.Where(x => x.loopheads.Count > 0).Any())
+        {        
             @:@{
                 var tabId = "myTab" + collectionCount.ToString();
                 <ul class="nav nav-pills" id="@tabId" role="tablist">
@@ -38,7 +38,7 @@ else
                       string variationNavTabId = "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString() + "-tab";
                       string variationNavTabTarget = "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString();
                       <li class="nav-item" role="presentation">
-                          <button class="nav-link" id="@variationNavTabId"  data-bs-toggle="pill" data-bs-target="#@variationNavTabTarget" type="button" role="tab" aria-controls="@variationNavTabTarget" aria-selected="false" @onclick="@(e => GetLoopheadMetadata(e, loopheadVariations.metadataCidLink))">@loopheadVariations.baseId-@loopheadVariations.variation</button>
+                          <button class="nav-link" id="@variationNavTabId"  data-bs-toggle="pill" data-bs-target="#@variationNavTabTarget" type="button" role="tab" aria-controls="@variationNavTabTarget" aria-selected="false" @onclick="@(e => GetLoopheadVariationMetadata(e, loopheadVariations.metadataCidLink))">@loopheadVariations.baseId-@loopheadVariations.variation</button>
                       </li>
                     }
                 }
@@ -52,7 +52,18 @@ else
                             string variationTabPaneId =  "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString();
                             string variationTabPaneTarget =  "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString() + "-tab";
                             <div class="tab-pane fade" id="@variationTabPaneId" role="tabpanel" aria-labelledby="@variationTabPaneTarget">
-                                 @if (loopheadVariations.metadata != null)
+                                 @foreach(var loopheadMetadataRetrievalState in loopheadMetadataRetrievalStates)
+                                 {
+                                    if(loopheadMetadataRetrievalState.metadataCid == loopheadVariations.metadataCidLink && loopheadMetadataRetrievalState.retrievalState == RetrievalState.retrieving && loopheadVariations.metadata == null)
+                                    {
+                                        <p>Retrieving metadata...</p>
+                                    }
+                                    else if(loopheadMetadataRetrievalState.metadataCid == loopheadVariations.metadataCidLink && loopheadMetadataRetrievalState.retrievalState == RetrievalState.error && loopheadVariations.metadata == null)
+                                    {
+                                        <p>Issue with retrieving metadata, try again...</p>
+                                    }
+                                 }
+                                @if (loopheadVariations.metadata != null)
                                  {
                                      <LoopheadMetadataView loopheadMetadata="loopheadVariations.metadata" ipfsGatewayUrl="@cloudflareIpfsGatewayUrl" />
                                  }
@@ -62,6 +73,7 @@ else
                 </div>
             }
         }
+
         count++;
         collectionCount++;
     }
@@ -71,8 +83,8 @@ else
 
 @code {
     private List<LoopheadIpfsLink> loopheadIpfsLinks;
-    private List<bool> variationButtonStates;
-    private List<bool> metadataButtonStates;
+    private List<LoopheadMetadataRetrievalState> loopheadMetadataRetrievalStates;
+    private List<LoopheadVariationRetrievalState> loopheadVariationRetrievalStates;
 
     [Parameter]
     public string ipfsAddress { get; set; }
@@ -87,7 +99,8 @@ else
     protected override async Task OnInitializedAsync()
     {
         loopheadIpfsLinks = new List<LoopheadIpfsLink>();
-        variationButtonStates = new List<bool>();
+        loopheadMetadataRetrievalStates = new List<LoopheadMetadataRetrievalState>();
+        loopheadVariationRetrievalStates = new List<LoopheadVariationRetrievalState>();
         //string baseUri = await EthereumService.GetLoopheadBaseUri(contractAddress);
         IpfsData ipfsDataLevelOne = await IpfsService.GetDirectoryContents(ipfsAddress);
         //IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(ipfsDataLevelOne.links[0].Cid.value)
@@ -100,15 +113,26 @@ else
                     name = links.Name,
                     cid = links.Cid.value
                 };
+                LoopheadVariationRetrievalState loopheadVariationRetrievalState = new LoopheadVariationRetrievalState
+                {
+                        cid = links.Cid.value
+                };
                 loopheadIpfsLinks.Add(loopheadIpfsLink);
-                variationButtonStates.Add(false);
+                loopheadVariationRetrievalStates.Add(loopheadVariationRetrievalState);
             }
         } 
     }
 
-    private async void GetLoopheadMetadataLinks(MouseEventArgs e, string loopheadMetadataLink, int buttonId)
+    private async void GetLoopheadVariationMetadataLinks(MouseEventArgs e, string loopheadMetadataLink)
     {
-        variationButtonStates[buttonId] = true;
+        foreach(var loopheadVariationRetrievalState in loopheadVariationRetrievalStates)
+        {
+            if(loopheadVariationRetrievalState.cid== loopheadMetadataLink)
+            {
+                    loopheadVariationRetrievalState.retrievalState = VariationRetrievalState.retrieving;
+            }
+        }
+        StateHasChanged();
         IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(loopheadMetadataLink);
         if(ipfsDataLevelTwo != null)
         {
@@ -118,7 +142,7 @@ else
                 {
                     //Debug.WriteLine(ipfsLink.cid);
                     //Debug.WriteLine(loopheadMetadataLink);
-                    if(ipfsLink.cid == loopheadMetadataLink)
+                    if(ipfsLink.cid == loopheadMetadataLink && ipfsLink.loopheads.Count != 25)
                     {
                         Loophead loophead = new Loophead
                             {
@@ -127,17 +151,48 @@ else
                                 variation = link.Name.Split('_')[1],
                                 metadataCidLink = link.Cid.value
                             };
+                        LoopheadMetadataRetrievalState loopheadMetadataRetrievalState = new LoopheadMetadataRetrievalState
+                            {
+                                metadataCid = link.Cid.value
+                            };
                         ipfsLink.loopheads.Add(loophead);
+                        loopheadMetadataRetrievalStates.Add(loopheadMetadataRetrievalState);
                         break;
                     }
                 }
             }
+            foreach(var loopheadVariationRetrievalState in loopheadVariationRetrievalStates)
+            {
+                if(loopheadVariationRetrievalState.cid== loopheadMetadataLink)
+                {
+                    loopheadVariationRetrievalState.retrievalState = VariationRetrievalState.success;
+                }
+            }
             StateHasChanged();
-        }        
+        }
+        else if(ipfsDataLevelTwo == null)
+        {
+            foreach(var loopheadVariationRetrievalState in loopheadVariationRetrievalStates)
+            {
+                if(loopheadVariationRetrievalState.cid== loopheadMetadataLink)
+                {
+                    loopheadVariationRetrievalState.retrievalState = VariationRetrievalState.error;
+                }
+            }
+            StateHasChanged();
+        }
     }
 
-    private async void GetLoopheadMetadata(MouseEventArgs e, string loopheadMetadataLink)
+    private async void GetLoopheadVariationMetadata(MouseEventArgs e, string loopheadMetadataLink)
     {
+        foreach(var loopheadMetadataRetrievalState in loopheadMetadataRetrievalStates)
+        {
+            if(loopheadMetadataRetrievalState.metadataCid == loopheadMetadataLink)
+            {
+                loopheadMetadataRetrievalState.retrievalState = RetrievalState.retrieving;
+            }
+        }
+        StateHasChanged();
         IpfsData ipfsDataLevelThree = await IpfsService.GetDirectoryContents(loopheadMetadataLink);
         if(ipfsDataLevelThree != null)
         {
@@ -157,7 +212,28 @@ else
                 }
                 StateHasChanged();
             }
+            else if(loopheadMetadata == null)
+            {
+                foreach(var loopheadMetadataRetrievalState in loopheadMetadataRetrievalStates)
+                {
+                    if(loopheadMetadataRetrievalState.metadataCid == loopheadMetadataLink)
+                    {
+                        loopheadMetadataRetrievalState.retrievalState = RetrievalState.error;
+                    }
+                }
+                StateHasChanged();
+            }
         }
-
+        else if(ipfsDataLevelThree == null)
+        {
+            foreach(var loopheadMetadataRetrievalState in loopheadMetadataRetrievalStates)
+            {
+                if(loopheadMetadataRetrievalState.metadataCid == loopheadMetadataLink)
+                {
+                    loopheadMetadataRetrievalState.retrievalState = RetrievalState.error;
+                }
+            }
+            StateHasChanged();
+        }
     }
 }

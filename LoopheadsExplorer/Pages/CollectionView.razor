@@ -52,7 +52,14 @@ else
                             string variationTabPaneId =  "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString();
                             string variationTabPaneTarget =  "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString() + "-tab";
                             <div class="tab-pane fade" id="@variationTabPaneId" role="tabpanel" aria-labelledby="@variationTabPaneTarget">
-                                 @if (loopheadVariations.metadata != null)
+                                 @foreach(var loopheadMetadataRetrievalState in loopheadMetadataRetrievalStates)
+                                 {
+                                    if(loopheadMetadataRetrievalState.metadataCid == loopheadVariations.metadataCidLink && loopheadMetadataRetrievalState.retrievalState == RetrievalState.retrieving)
+                                    {
+                                        <p>Retrieving metadata...</p>
+                                    }
+                                 }
+                                @if (loopheadVariations.metadata != null)
                                  {
                                      <LoopheadMetadataView loopheadMetadata="loopheadVariations.metadata" ipfsGatewayUrl="@cloudflareIpfsGatewayUrl" />
                                  }
@@ -72,7 +79,8 @@ else
 @code {
     private List<LoopheadIpfsLink> loopheadIpfsLinks;
     private List<bool> variationButtonStates;
-    private List<bool> metadataButtonStates;
+    private List<LoopheadMetadataRetrievalState> loopheadMetadataRetrievalStates;
+
 
     [Parameter]
     public string ipfsAddress { get; set; }
@@ -88,6 +96,7 @@ else
     {
         loopheadIpfsLinks = new List<LoopheadIpfsLink>();
         variationButtonStates = new List<bool>();
+        loopheadMetadataRetrievalStates = new List<LoopheadMetadataRetrievalState>();
         //string baseUri = await EthereumService.GetLoopheadBaseUri(contractAddress);
         IpfsData ipfsDataLevelOne = await IpfsService.GetDirectoryContents(ipfsAddress);
         //IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(ipfsDataLevelOne.links[0].Cid.value)
@@ -127,7 +136,12 @@ else
                                 variation = link.Name.Split('_')[1],
                                 metadataCidLink = link.Cid.value
                             };
+                        LoopheadMetadataRetrievalState loopheadMetadataRetrievalState = new LoopheadMetadataRetrievalState
+                            {
+                                metadataCid = link.Cid.value
+                            };
                         ipfsLink.loopheads.Add(loophead);
+                        loopheadMetadataRetrievalStates.Add(loopheadMetadataRetrievalState);
                         break;
                     }
                 }
@@ -138,6 +152,14 @@ else
 
     private async void GetLoopheadMetadata(MouseEventArgs e, string loopheadMetadataLink)
     {
+        foreach(var loopheadMetadataRetrievalState in loopheadMetadataRetrievalStates)
+        {
+            if(loopheadMetadataRetrievalState.metadataCid == loopheadMetadataLink)
+            {
+                loopheadMetadataRetrievalState.retrievalState = RetrievalState.retrieving;
+            }
+        }
+        StateHasChanged();
         IpfsData ipfsDataLevelThree = await IpfsService.GetDirectoryContents(loopheadMetadataLink);
         if(ipfsDataLevelThree != null)
         {
@@ -157,6 +179,28 @@ else
                 }
                 StateHasChanged();
             }
+            else if(loopheadMetadata == null)
+            {
+                foreach(var loopheadMetadataRetrievalState in loopheadMetadataRetrievalStates)
+                {
+                    if(loopheadMetadataRetrievalState.metadataCid == loopheadMetadataLink)
+                    {
+                        loopheadMetadataRetrievalState.retrievalState = RetrievalState.error;
+                    }
+                }
+                StateHasChanged();
+            }
+        }
+        else if(ipfsDataLevelThree == null)
+        {
+            foreach(var loopheadMetadataRetrievalState in loopheadMetadataRetrievalStates)
+            {
+                if(loopheadMetadataRetrievalState.metadataCid == loopheadMetadataLink)
+                {
+                    loopheadMetadataRetrievalState.retrievalState = RetrievalState.error;
+                }
+            }
+            StateHasChanged();
         }
 
     }

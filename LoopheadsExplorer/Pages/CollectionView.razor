@@ -82,7 +82,7 @@ else
 @code {
     private List<LoopheadIpfsLink> loopheadIpfsLinks;
     private List<LoopheadMetadataRetrievalState> loopheadMetadataRetrievalStates;
-
+    private List<LoopheadVariationRetrievalState> loopheadVariationRetrievalStates;
 
     [Parameter]
     public string ipfsAddress { get; set; }
@@ -98,6 +98,7 @@ else
     {
         loopheadIpfsLinks = new List<LoopheadIpfsLink>();
         loopheadMetadataRetrievalStates = new List<LoopheadMetadataRetrievalState>();
+        loopheadVariationRetrievalStates = new List<LoopheadVariationRetrievalState>();
         //string baseUri = await EthereumService.GetLoopheadBaseUri(contractAddress);
         IpfsData ipfsDataLevelOne = await IpfsService.GetDirectoryContents(ipfsAddress);
         //IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(ipfsDataLevelOne.links[0].Cid.value)
@@ -110,13 +111,25 @@ else
                     name = links.Name,
                     cid = links.Cid.value
                 };
+                LoopheadVariationRetrievalState loopheadVariationRetrievalState = new LoopheadVariationRetrievalState
+                {
+                        cid = links.Cid.value
+                };
                 loopheadIpfsLinks.Add(loopheadIpfsLink);
+                loopheadVariationRetrievalStates.Add(loopheadVariationRetrievalState);
             }
         } 
     }
 
     private async void GetLoopheadVariationMetadataLinks(MouseEventArgs e, string loopheadMetadataLink)
     {
+        foreach(var loopheadVariationRetrievalState in loopheadVariationRetrievalStates)
+        {
+            if(loopheadVariationRetrievalState.cid== loopheadMetadataLink)
+            {
+                loopheadVariationRetrievalState.retrievalState = VariationRetrievalState.retrieving;
+            }
+        }
         IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(loopheadMetadataLink);
         if(ipfsDataLevelTwo != null)
         {
@@ -146,7 +159,17 @@ else
                 }
             }
             StateHasChanged();
-        }        
+        }
+        else if(ipfsDataLevelTwo == null)
+        {
+            foreach(var loopheadVariationRetrievalState in loopheadVariationRetrievalStates)
+            {
+                if(loopheadVariationRetrievalState.cid== loopheadMetadataLink)
+                {
+                    loopheadVariationRetrievalState.retrievalState = VariationRetrievalState.error;
+                }
+            }
+        }
     }
 
     private async void GetLoopheadVariationMetadata(MouseEventArgs e, string loopheadMetadataLink)

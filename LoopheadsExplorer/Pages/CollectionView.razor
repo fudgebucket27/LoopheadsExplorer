@@ -129,7 +129,8 @@ else
         {
             if(loopheadVariationRetrievalState.cid== loopheadMetadataLink)
             {
-                    loopheadVariationRetrievalState.retrievalState = VariationRetrievalState.retrieving;
+                loopheadVariationRetrievalState.retrievalState = VariationRetrievalState.retrieving;
+                break;
             }
         }
         StateHasChanged();
@@ -166,6 +167,7 @@ else
                 if(loopheadVariationRetrievalState.cid== loopheadMetadataLink)
                 {
                     loopheadVariationRetrievalState.retrievalState = VariationRetrievalState.success;
+                    break;
                 }
             }
             StateHasChanged();
@@ -177,6 +179,7 @@ else
                 if(loopheadVariationRetrievalState.cid== loopheadMetadataLink)
                 {
                     loopheadVariationRetrievalState.retrievalState = VariationRetrievalState.error;
+                    break;
                 }
             }
             StateHasChanged();
@@ -190,6 +193,7 @@ else
             if(loopheadMetadataRetrievalState.metadataCid == loopheadMetadataLink)
             {
                 loopheadMetadataRetrievalState.retrievalState = RetrievalState.retrieving;
+                break;
             }
         }
         StateHasChanged();
@@ -219,6 +223,7 @@ else
                     if(loopheadMetadataRetrievalState.metadataCid == loopheadMetadataLink)
                     {
                         loopheadMetadataRetrievalState.retrievalState = RetrievalState.error;
+                        break;
                     }
                 }
                 StateHasChanged();
@@ -231,6 +236,7 @@ else
                 if(loopheadMetadataRetrievalState.metadataCid == loopheadMetadataLink)
                 {
                     loopheadMetadataRetrievalState.retrievalState = RetrievalState.error;
+                    break;
                 }
             }
             StateHasChanged();

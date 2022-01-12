@@ -25,8 +25,9 @@ else
         {   
             <h2>Loophead #@collectionIdIncrement <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadVariationMetadataLinks(e, loopheadIpfsLink.cid))">View variations</button></h2>
         }
-        @if(loopheadIpfsLinks.Any(x => x.loopheads.Count > 0))
-        {
+        <LoopheadVariationRetrievalStateView loopheadVariationRetrievalStates="@loopheadVariationRetrievalStates" ipfsLinkCid="@loopheadIpfsLink.cid"/> 
+        @if(loopheadIpfsLinks.Where(x => x.loopheads.Count > 0).Any())
+        {        
             @:@{
                 var tabId = "myTab" + collectionCount.ToString();
                 <ul class="nav nav-pills" id="@tabId" role="tablist">
@@ -72,6 +73,7 @@ else
                 </div>
             }
         }
+
         count++;
         collectionCount++;
     }
@@ -127,9 +129,10 @@ else
         {
             if(loopheadVariationRetrievalState.cid== loopheadMetadataLink)
             {
-                loopheadVariationRetrievalState.retrievalState = VariationRetrievalState.retrieving;
+                    loopheadVariationRetrievalState.retrievalState = VariationRetrievalState.retrieving;
             }
         }
+        StateHasChanged();
         IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(loopheadMetadataLink);
         if(ipfsDataLevelTwo != null)
         {
@@ -139,7 +142,7 @@ else
                 {
                     //Debug.WriteLine(ipfsLink.cid);
                     //Debug.WriteLine(loopheadMetadataLink);
-                    if(ipfsLink.cid == loopheadMetadataLink)
+                    if(ipfsLink.cid == loopheadMetadataLink && ipfsLink.loopheads.Count != 25)
                     {
                         Loophead loophead = new Loophead
                             {
@@ -158,6 +161,13 @@ else
                     }
                 }
             }
+            foreach(var loopheadVariationRetrievalState in loopheadVariationRetrievalStates)
+            {
+                if(loopheadVariationRetrievalState.cid== loopheadMetadataLink)
+                {
+                    loopheadVariationRetrievalState.retrievalState = VariationRetrievalState.success;
+                }
+            }
             StateHasChanged();
         }
         else if(ipfsDataLevelTwo == null)
@@ -169,6 +179,7 @@ else
                     loopheadVariationRetrievalState.retrievalState = VariationRetrievalState.error;
                 }
             }
+            StateHasChanged();
         }
     }
 

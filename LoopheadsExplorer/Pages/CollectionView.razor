@@ -2,6 +2,7 @@
 @using LoopheadsExplorer.Data
 @using LoopheadsExplorer.Models
 @using System.Diagnostics
+@using System.Numerics
 @inject EthereumService EthereumService
 @inject IpfsService IpfsService
 
@@ -17,13 +18,22 @@ else
 {
     int count = 0;
     int collectionCount = 1;
-    
+
     foreach(var loopheadIpfsLink in loopheadIpfsLinks)
     {
         int collectionIdIncrement = collectionCount + Int32.Parse(increment);
+        string tradingHistoryLink = "";
+
+        if (collectionId == "1")
+        {
+            string minter = "0x0dc6a4682fdd859a41b5e7c9b473b31995f98236";
+            string contractAddress = "0x1cacc96e5f01e2849e6036f25531a9a064d2fb5f";
+            string nftId = "0x0" + BigInteger.Parse(loopheadIpfsLink.name).ToString("x");
+            tradingHistoryLink = "https://explorer.loopring.io/nft/" + minter + "-0-" + contractAddress + "-" + nftId + "-0";
+        }
         if(count != 1000)
         {   
-            <h2>Loophead #@collectionIdIncrement <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadVariationMetadataLinks(e, loopheadIpfsLink.cid))">View variations</button></h2>
+            <h2>Loophead #@collectionIdIncrement <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadVariationMetadataLinks(e, loopheadIpfsLink.cid))">View variations</button><a href="@tradingHistoryLink" target="_blank"><button type="button" class="btn btn-primary" >View trading history</button></a></h2>
         }
         <LoopheadVariationRetrievalStateView loopheadVariationRetrievalStates="@loopheadVariationRetrievalStates" ipfsLinkCid="@loopheadIpfsLink.cid"/> 
         @if(loopheadIpfsLinks.Where(x => x.loopheads.Count > 0).Any())

@@ -1,6 +1,6 @@
 ﻿@using LoopheadsExplorer.Models;
 
-@inject System.Net.Http.HttpClient HttpClient;
+@inject IHttpClientFactory ClientFactory
 @inject IJSRuntime JS;
 
 
@@ -83,6 +83,7 @@
 
     private async Task<Stream> GetImageStreamAsync()
     { 
-        return await HttpClient.GetStreamAsync(ipfsGatewayUrl + loopheadMetadata.image.Remove(0, 7));
+        var client = ClientFactory.CreateClient();
+        return await client.GetStreamAsync(ipfsGatewayUrl + loopheadMetadata.image.Remove(0, 7));
     }
 }

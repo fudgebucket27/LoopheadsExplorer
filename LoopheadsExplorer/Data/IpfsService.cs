@@ -32,6 +32,10 @@ namespace LoopheadsExplorer.Data
                 var data = JsonConvert.DeserializeObject<IpfsData>(response.Content);
                 return data;
             }
+            catch(System.Net.Sockets.SocketException sex)
+            {
+                Trace.WriteLine(sex.StackTrace + "\n" + sex.Message);
+            }
             catch(JsonReaderException e)
             {
                 Trace.WriteLine(e.StackTrace + "\n" + e.Message);
@@ -58,7 +62,11 @@ namespace LoopheadsExplorer.Data
                 var loopheadMetaData = JsonConvert.DeserializeObject<LoopheadMetadata>(metadataAsStringCleaned);
                 return loopheadMetaData;
             }
-            catch(JsonReaderException e)
+            catch (System.Net.Sockets.SocketException sex)
+            {
+                Trace.WriteLine(sex.StackTrace + "\n" + sex.Message);
+            }
+            catch (JsonReaderException e)
             {
                 Trace.WriteLine(e.StackTrace + "\n" + e.Message);
             }

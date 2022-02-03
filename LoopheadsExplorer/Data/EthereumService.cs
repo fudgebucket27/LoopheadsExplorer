@@ -16,7 +16,11 @@ namespace LoopheadsExplorer.Data
                 var baseUri = await function.CallAsync<string>();
                 return baseUri.Remove(0,7);
             }
-            catch(Exception e)
+            catch (System.Net.Sockets.SocketException sex)
+            {
+                Trace.WriteLine(sex.StackTrace + "\n" + sex.Message);
+            }
+            catch (Exception e)
             {
                 Debug.WriteLine(e.Message + "\n" + e.StackTrace );
             }

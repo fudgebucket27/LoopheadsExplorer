@@ -9,6 +9,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<EthereumService>();
 builder.Services.AddSingleton<IpfsService>();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

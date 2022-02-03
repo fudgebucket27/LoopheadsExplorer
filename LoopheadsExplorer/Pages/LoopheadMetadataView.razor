@@ -1,4 +1,8 @@
-﻿@using LoopheadsExplorer.Models
+﻿@using LoopheadsExplorer.Models;
+
+@inject System.Net.Http.HttpClient HttpClient;
+@inject IJSRuntime JS;
+
 
 @{
     var loopheadImageUrl = ipfsGatewayUrl + loopheadMetadata.image.Remove(0, 7);
@@ -6,7 +10,11 @@
     <div class="card mb-3" style="max-width: 720px;">
       <div class="row g-0">
         <div class="col-md-4">
-          <img src="@loopheadImageUrl" class="img-fluid rounded-start" alt="loophead image">
+          @if(@imageLoading == true)
+          {
+             <p>@imageLoadingText</p>
+          }
+          <img id="@loopheadMetadata.image" class="img-fluid rounded-start">
         </div>
         <div class="col-md-4">
           <div class="card-body">
@@ -38,4 +46,43 @@
     [Parameter]
     public string ipfsGatewayUrl { get; set; }
 
+    private bool imageLoading = true;
+
+    private string imageLoadingText = "Retrieving image...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await SetImageUsingStreamingAsync();
+            imageLoading = false;
+            StateHasChanged();
+        }
+        catch(HttpRequestException he)
+        {
+            imageLoadingText = "Image retrieval failed, try again...";
+        }
+        catch(TaskCanceledException te)
+        {
+            imageLoadingText = "Image retrieval failed, try again...";
+        }
+        catch(Exception e)
+        {
+            imageLoadingText = "Image retrieval failed, try again...";
+        }        
+    }
+
+    private async Task SetImageUsingStreamingAsync()
+    {
+        
+        var imageStream = await GetImageStreamAsync();
+        var dotnetImageStream = new DotNetStreamReference(imageStream);
+        await JS.InvokeVoidAsync("setImageUsingStreaming", 
+            loopheadMetadata.image, dotnetImageStream);
+    }
+
+    private async Task<Stream> GetImageStreamAsync()
+    { 
+        return await HttpClient.GetStreamAsync(ipfsGatewayUrl + loopheadMetadata.image.Remove(0, 7));
+    }
 }

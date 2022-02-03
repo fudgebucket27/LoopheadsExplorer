@@ -29,5 +29,14 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="_framework/blazor.server.js"></script>
+
+    <script>
+        async function setImageUsingStreaming(imageElementId, imageStream) {
+          const arrayBuffer = await imageStream.arrayBuffer();
+          const blob = new Blob([arrayBuffer]);
+          const url = URL.createObjectURL(blob);
+          document.getElementById(imageElementId).src = url;
+        }
+    </script>
 </body>
 </html>

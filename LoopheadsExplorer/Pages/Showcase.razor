@@ -14,7 +14,7 @@
 }
 else
 {
-    <p>Retrieving data...</p>
+    <p>@statusText</p>
 }
 @code {
     [Parameter]
@@ -33,11 +33,30 @@ else
     private LoopheadMetadata currentLoopheadMetadata { get; set; }
     private string currentLoopheadImageLink { get; set; }
 
+    private string statusText = "Retrieving data";
+
     protected override async Task OnParametersSetAsync()
     {
-        currentLoopheadMetadataLink = ipfsGatewayUrl + await EthereumService.GetLoopheadMetadataLink(contractAddress, tokenId);
-        currentLoopheadMetadata = await RestService.GetLoopheadMetadata(currentLoopheadMetadataLink);
-        currentLoopheadImageLink = ipfsGatewayUrl + currentLoopheadMetadata.image.Remove(0, 7);
+        string tempMetadataLink = await EthereumService.GetLoopheadMetadataLink(contractAddress, tokenId);
+        if(!String.IsNullOrEmpty(tempMetadataLink))
+        {
+            statusText = "Metadata retrieved, now grabbing image...";
+            StateHasChanged();
+            currentLoopheadMetadataLink = ipfsGatewayUrl + tempMetadataLink;
+            currentLoopheadMetadata = await RestService.GetLoopheadMetadata(currentLoopheadMetadataLink); 
+            if(currentLoopheadMetadata != null)
+            {
+                currentLoopheadImageLink = ipfsGatewayUrl + currentLoopheadMetadata.image.Remove(0, 7);
+            }
+            else
+            {
+                statusText = "Image retrieval failed... try again";
+            }
+        }
+        else
+        {
+            statusText = "Could not get metadata... try again";
+        }  
         StateHasChanged();
     }
 }

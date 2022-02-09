@@ -15,7 +15,7 @@ namespace LoopheadsExplorer.Data
             {
                 var contract = web3.Eth.GetContract(contractABI, contractAddress);
                 var function = contract.GetFunction("uri");
-                object[] parameters = new object[1] { new {tokenId = "0x01" } };
+                object[] parameters = new object[1] { new {tokenId = _tokenId} };
                 var uri = await function.CallAsync<string>(parameters);
                 return uri;
             }

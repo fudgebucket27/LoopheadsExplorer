@@ -61,14 +61,17 @@
         catch(HttpRequestException he)
         {
             imageLoadingText = "Image retrieval failed, try again...";
+            StateHasChanged();
         }
         catch(TaskCanceledException te)
         {
             imageLoadingText = "Image retrieval failed, try again...";
+            StateHasChanged();
         }
         catch(Exception e)
         {
             imageLoadingText = "Image retrieval failed, try again...";
+            StateHasChanged();
         }        
     }
 

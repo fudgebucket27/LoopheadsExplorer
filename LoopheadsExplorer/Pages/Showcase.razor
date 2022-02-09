@@ -5,10 +5,10 @@
 
 <h1>Loophead #@loopheadNumber</h1>
 
-@if(!String.IsNullOrEmpty(currentLoopheadMetadata))
+@if(!String.IsNullOrEmpty(currentLoopheadMetadataLink))
 {
-    <h2>Current State</h2>
-    <p>@currentLoopheadMetadata</p>
+    <h2>Current Variation</h2>
+    <p>@currentLoopheadMetadataLink</p>
 }
 else
 {
@@ -24,10 +24,13 @@ else
     [Parameter]
     public string loopheadNumber { get; set;  }
 
-    private string currentLoopheadMetadata { get; set; }
+    private string currentLoopheadMetadataLink { get; set; }
+
+    private string ipfsGatewayUrl = "https://loopring.mypinata.cloud/ipfs/";
+
     protected override async Task OnParametersSetAsync()
     {
-        currentLoopheadMetadata = await EthereumService.GetLoopheadMetadata(contractAddress, tokenId);
+        currentLoopheadMetadataLink = ipfsGatewayUrl + await EthereumService.GetLoopheadMetadata(contractAddress, tokenId);
         StateHasChanged();
     }
 }

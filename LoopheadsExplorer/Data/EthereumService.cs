@@ -15,7 +15,7 @@ namespace LoopheadsExplorer.Data
                 var function = contract.GetFunction("uri");
                 object[] parameters = new object[1] { _tokenId };
                 var uri = await function.CallAsync<string>(parameters);
-                return uri;
+                return uri.Remove(0, 7); //remove the ipfs portion
             }
             catch (System.Net.Sockets.SocketException sex)
             {

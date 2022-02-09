@@ -1,6 +1,7 @@
 ﻿using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using System.Diagnostics;
+using LoopheadsExplorer.Models;
 using System.Net;
 
 namespace LoopheadsExplorer.Data
@@ -15,7 +16,9 @@ namespace LoopheadsExplorer.Data
             {
                 var contract = web3.Eth.GetContract(contractABI, contractAddress);
                 var function = contract.GetFunction("uri");
-                object[] parameters = new object[1] { new {tokenId = _tokenId} };
+                ContractParameter contractParameter = new ContractParameter();
+                contractParameter.TokenId = _tokenId;
+                object[] parameters = new object[1] { new { tokenId = contractParameter.TokenId }};
                 var uri = await function.CallAsync<string>(parameters);
                 return uri;
             }

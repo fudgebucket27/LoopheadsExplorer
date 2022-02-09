@@ -31,9 +31,11 @@ else
         string tradingHistoryLink = "";
         string nftId = "0x0" + BigInteger.Parse(loopheadIpfsLink.name).ToString("x");
         tradingHistoryLink = "https://explorer.loopring.io/nft/" + minter + "-0-" + contractAddress + "-" + nftId + "-0";
+        
+        string showcaseLink = $"showcase/{contractAddress}/{nftId}";
         if (count != 1000)
         {   
-                        <h2>Loophead #@collectionIdIncrement <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadVariationMetadataLinks(e, loopheadIpfsLink.cid))">View variations</button><a href="@tradingHistoryLink" target="_blank"><button type="button" class="btn btn-primary" >View trading history</button></a></h2>
+                        <h2>Loophead #@collectionIdIncrement <button type="button" class="btn btn-primary" @onclick="@(e => GetLoopheadVariationMetadataLinks(e, loopheadIpfsLink.cid))">View variations</button><a href="@tradingHistoryLink" target="_blank"><button type="button" class="btn btn-primary" >View trading history</button></a><a href="@showcaseLink" target="_blank"><button type= "button" class="btn btn-primary">View Showcase</button></a></h2>
         }
                 <LoopheadVariationRetrievalStateView loopheadVariationRetrievalStates="@loopheadVariationRetrievalStates" ipfsLinkCid="@loopheadIpfsLink.cid"/> 
         @if (loopheadIpfsLinks.Where(x => x.loopheads.Count > 0).Any())

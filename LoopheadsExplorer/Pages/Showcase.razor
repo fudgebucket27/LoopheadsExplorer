@@ -1,5 +1,23 @@
-﻿@page "/showcase/{contractAddress}/{tokenId}"
+﻿@page "/showcase/{contractAddress}/{tokenId}";
+@using LoopheadsExplorer.Data;
+@inject EthereumService EthereumService;
+@inject IpfsService IpfsService
 
+@if(!String.IsNullOrEmpty(currentLoopheadMetadata))
+{
+    <p>@currentLoopheadMetadata</p>
+}
 @code {
+    [Parameter]
+    public string contractAddress { get; set; }
 
+    [Parameter]
+    public string tokenId { get; set; }
+
+    private string currentLoopheadMetadata { get; set; }
+    protected override async Task OnParametersSetAsync()
+    {
+        currentLoopheadMetadata = await EthereumService.GetLoopheadMetadata(contractAddress, tokenId);
+        StateHasChanged();
+    }
 }

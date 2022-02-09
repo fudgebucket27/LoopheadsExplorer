@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoopheadsExplorer", "LoopheadsExplorer\LoopheadsExplorer.csproj", "{3900D54A-8C39-4563-95DF-1973F2F68EF3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoopheadsExplorer", "LoopheadsExplorer\LoopheadsExplorer.csproj", "{3900D54A-8C39-4563-95DF-1973F2F68EF3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

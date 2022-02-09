@@ -7,11 +7,10 @@
 
 <h1>Loophead #@loopheadNumber</h1>
 
-@if(currentLoopheadMetaData != null)
+@if(currentLoopheadMetadata != null)
 {
     <h2>Current Variation</h2>
-    <p>@currentLoopheadMetadataLink</p>
-    <p>@currentLoopheadMetaData.image</p>
+    <img src="@currentLoopheadImageLink" />
 }
 else
 {
@@ -31,12 +30,14 @@ else
 
     private string ipfsGatewayUrl = "https://loopring.mypinata.cloud/ipfs/";
 
-    private LoopheadMetadata currentLoopheadMetaData { get; set; }
+    private LoopheadMetadata currentLoopheadMetadata { get; set; }
+    private string currentLoopheadImageLink { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
         currentLoopheadMetadataLink = ipfsGatewayUrl + await EthereumService.GetLoopheadMetadataLink(contractAddress, tokenId);
-        currentLoopheadMetaData = await RestService.GetLoopheadMetadata(currentLoopheadMetadataLink);
+        currentLoopheadMetadata = await RestService.GetLoopheadMetadata(currentLoopheadMetadataLink);
+        currentLoopheadImageLink = ipfsGatewayUrl + currentLoopheadMetadata.image.Remove(0, 7);
         StateHasChanged();
     }
 }

@@ -1,7 +1,24 @@
-﻿<h3>GifView</h3>
+﻿@page "/gif/{loopheadNumber}"
+<h1>Loophead #@loopheadNumber</h1>
+
+@for(int i = 0; i < 6; i++)
+{
+    if(i != 5)
+    {
+        string gifUrl = $"{gifSite}/{loopheadNumber}/{loopheadNumber}_{i}_throb_900x900.gif";
+        <img src="@gifUrl">
+    }
+    else
+    {
+        string gifUrl = $"{gifSite}/{loopheadNumber}/{loopheadNumber}_random_900x900.gif";
+        <img src="@gifUrl">
+    }
+}
 
 @code {
 
     [Parameter]
     public string loopheadNumber { get; set; }
+
+    private string gifSite = "https://sk33z3r.site/loopheads/"; //sk33z3r.eth is a LEGEND!!!
 }

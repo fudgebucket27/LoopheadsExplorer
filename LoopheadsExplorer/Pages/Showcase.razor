@@ -33,7 +33,7 @@ else
     private LoopheadMetadata currentLoopheadMetadata { get; set; }
     private string currentLoopheadImageLink { get; set; }
 
-    private string statusText = "Retrieving data";
+    private string statusText = "Retrieving metadata URI from smart contract...";
 
     protected override async Task OnParametersSetAsync()
     {
@@ -41,7 +41,7 @@ else
         if(!String.IsNullOrEmpty(currentLoopheadMetadataLink))
         {
             currentLoopheadMetadataLink = currentLoopheadMetadataLink.Remove(0, 7);
-            statusText = "Retrieved metadata link, now grabbing metadata and image...";
+            statusText = "Retrieved metadata URI, now retrieving metadata and image...";
             StateHasChanged();
             currentLoopheadMetadata = await IpfsService.GetLoopheadMetadata(currentLoopheadMetadataLink); 
             if(currentLoopheadMetadata != null)

@@ -33,17 +33,17 @@ else
     private LoopheadMetadata currentLoopheadMetadata { get; set; }
     private string currentLoopheadImageLink { get; set; }
 
-    private string statusText = "Retrieving data";
+    private string statusText = "Retrieving metadata URI from smart contract...";
 
     protected override async Task OnParametersSetAsync()
     {
-        string tempMetadataLink = await EthereumService.GetLoopheadMetadataLink(contractAddress, tokenId);
-        if(!String.IsNullOrEmpty(tempMetadataLink))
+        currentLoopheadMetadataLink = await EthereumService.GetLoopheadMetadataLink(contractAddress, tokenId);
+        if(!String.IsNullOrEmpty(currentLoopheadMetadataLink))
         {
-            statusText = "Metadata retrieved, now grabbing image...";
+            currentLoopheadMetadataLink = currentLoopheadMetadataLink.Remove(0, 7);
+            statusText = "Retrieved metadata URI, now retrieving metadata and image...";
             StateHasChanged();
-            currentLoopheadMetadataLink = ipfsGatewayUrl + tempMetadataLink;
-            currentLoopheadMetadata = await RestService.GetLoopheadMetadata(currentLoopheadMetadataLink); 
+            currentLoopheadMetadata = await IpfsService.GetLoopheadMetadata(currentLoopheadMetadataLink); 
             if(currentLoopheadMetadata != null)
             {
                 currentLoopheadImageLink = ipfsGatewayUrl + currentLoopheadMetadata.image.Remove(0, 7);

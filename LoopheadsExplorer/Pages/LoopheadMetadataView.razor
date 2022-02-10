@@ -56,23 +56,23 @@
         {
             await SetImageUsingStreamingAsync();
             imageLoading = false;
-            StateHasChanged();
         }
         catch(HttpRequestException he)
         {
+            imageLoading = true;
             imageLoadingText = "Image retrieval failed, try again...";
-            StateHasChanged();
         }
         catch(TaskCanceledException te)
         {
+            imageLoading = true;
             imageLoadingText = "Image retrieval failed, try again...";
-            StateHasChanged();
         }
         catch(Exception e)
         {
+            imageLoading = true;
             imageLoadingText = "Image retrieval failed, try again...";
-            StateHasChanged();
-        }        
+        }       
+        StateHasChanged();
     }
 
     private async Task SetImageUsingStreamingAsync()

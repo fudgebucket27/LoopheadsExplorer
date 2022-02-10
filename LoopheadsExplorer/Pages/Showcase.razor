@@ -40,7 +40,6 @@ else
         currentLoopheadMetadataLink = await EthereumService.GetLoopheadMetadataLink(contractAddress, tokenId);
         if(!String.IsNullOrEmpty(currentLoopheadMetadataLink))
         {
-            currentLoopheadMetadataLink = currentLoopheadMetadataLink.Remove(0, 7);
             statusText = "Retrieved metadata URI, now retrieving metadata and image...";
             StateHasChanged();
             currentLoopheadMetadata = await IpfsService.GetLoopheadMetadata(currentLoopheadMetadataLink); 

@@ -41,14 +41,21 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        string currentLoopheadMetadataLinkCacheKey = $"currentLoopheadMetadatalink-{tokenId}";
-        currentLoopheadMetadataLink = await AppCache.GetOrAddAsync(currentLoopheadMetadataLinkCacheKey, () => EthereumService.GetLoopheadMetadataLink(contractAddress, tokenId), DateTimeOffset.UtcNow.AddMinutes(120));
+        string currentLoopheadMetadataLinkCacheKey = $"currentLoopheadMetadatalink-{tokenId}"; 
+        while(String.IsNullOrEmpty(currentLoopheadMetadataLink))
+        {
+            currentLoopheadMetadataLink = await AppCache.GetOrAddAsync(currentLoopheadMetadataLinkCacheKey, () => EthereumService.GetLoopheadMetadataLink(contractAddress, tokenId), DateTimeOffset.UtcNow.AddMinutes(120));   
+        }
+
         if (!String.IsNullOrEmpty(currentLoopheadMetadataLink))
         {
             statusText = "Retrieved metadata URI, now retrieving metadata and image...";
             StateHasChanged();
             string currentLoopheadMetadataCacheKey = $"currentLoopheadMetadata-{tokenId}";
-            currentLoopheadMetadata = await AppCache.GetOrAddAsync(currentLoopheadMetadataCacheKey, () => IpfsService.GetLoopheadMetadata(currentLoopheadMetadataLink), DateTimeOffset.UtcNow.AddMinutes(120));
+            while(currentLoopheadMetadata == null)
+            {
+                currentLoopheadMetadata = await AppCache.GetOrAddAsync(currentLoopheadMetadataCacheKey, () => IpfsService.GetLoopheadMetadata(currentLoopheadMetadataLink), DateTimeOffset.UtcNow.AddMinutes(120));
+            }
             if (currentLoopheadMetadata != null)
             {
                 currentLoopheadImageLink = ipfsGatewayUrl + currentLoopheadMetadata.image.Remove(0, 7);

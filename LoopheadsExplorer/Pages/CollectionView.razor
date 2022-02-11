@@ -43,7 +43,9 @@ else
                             <a href="@tradingHistoryLink" target="_blank"><button type="button" class="btn btn-primary btn-sm" >View trading history</button></a>
                         </h5>
         }
-                <LoopheadVariationRetrievalStateView loopheadVariationRetrievalStates="@loopheadVariationRetrievalStates" ipfsLinkCid="@loopheadIpfsLink.cid"/> 
+        <NftCurrentView contractAddress="@contractAddress" tokenId="@nftId"></NftCurrentView>
+
+        <LoopheadVariationRetrievalStateView loopheadVariationRetrievalStates="@loopheadVariationRetrievalStates" ipfsLinkCid="@loopheadIpfsLink.cid"/> 
         @if (loopheadIpfsLinks.Where(x => x.loopheads.Count > 0).Any())
         {        
             @:@{

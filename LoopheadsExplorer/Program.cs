@@ -11,6 +11,7 @@ builder.Services.AddSingleton<EthereumService>();
 builder.Services.AddSingleton<IpfsService>();
 builder.Services.AddSingleton<RestService>();
 builder.Services.AddHttpClient();
+builder.Services.AddLazyCache();
 
 var app = builder.Build();
 

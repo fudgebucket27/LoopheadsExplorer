@@ -1,16 +1,15 @@
-﻿@page "/showcase/{contractAddress}/{loopheadNumber}/{tokenId}";
-@using LoopheadsExplorer.Data;
+﻿@using LoopheadsExplorer.Data;
 @using LoopheadsExplorer.Models;
 @inject EthereumService EthereumService;
 @inject IpfsService IpfsService;
 @inject RestService RestService;
+@inject IAppCache AppCache;
 
-<h1>Loophead #@loopheadNumber</h1>
-
-@if(currentLoopheadMetadata != null)
+@if (currentLoopheadMetadata != null)
 {
-    <h2>Current Variation</h2>
-    <img src="@currentLoopheadImageLink" loading="lazy" />
+    <div class="col-md-4">
+        <img src="@currentLoopheadImageLink" width="250" height="250" loading="lazy" />
+    </div>
 }
 else
 {
@@ -23,9 +22,6 @@ else
     [Parameter]
     public string tokenId { get; set; }
 
-    [Parameter]
-    public string? loopheadNumber { get; set;  }
-
     private string currentLoopheadMetadataLink { get; set; }
 
     private string ipfsGatewayUrl = "https://loopring.mypinata.cloud/ipfs/";
@@ -35,15 +31,25 @@ else
 
     private string statusText = "Retrieving metadata URI from smart contract...";
 
+    /*
+
     protected override async Task OnParametersSetAsync()
     {
-        currentLoopheadMetadataLink = await EthereumService.GetLoopheadMetadataLink(contractAddress, tokenId);
-        if(!String.IsNullOrEmpty(currentLoopheadMetadataLink))
+
+    }
+    */
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        string currentLoopheadMetadataLinkCacheKey = $"currentLoopheadMetadatalink-{tokenId}";
+        currentLoopheadMetadataLink = await AppCache.GetOrAddAsync(currentLoopheadMetadataLinkCacheKey, () => EthereumService.GetLoopheadMetadataLink(contractAddress, tokenId), DateTimeOffset.UtcNow.AddMinutes(120));
+        if (!String.IsNullOrEmpty(currentLoopheadMetadataLink))
         {
             statusText = "Retrieved metadata URI, now retrieving metadata and image...";
             StateHasChanged();
-            currentLoopheadMetadata = await IpfsService.GetLoopheadMetadata(currentLoopheadMetadataLink); 
-            if(currentLoopheadMetadata != null)
+            string currentLoopheadMetadataCacheKey = $"currentLoopheadMetadata-{tokenId}";
+            currentLoopheadMetadata = await AppCache.GetOrAddAsync(currentLoopheadMetadataCacheKey, () => IpfsService.GetLoopheadMetadata(currentLoopheadMetadataLink), DateTimeOffset.UtcNow.AddMinutes(120));
+            if (currentLoopheadMetadata != null)
             {
                 currentLoopheadImageLink = ipfsGatewayUrl + currentLoopheadMetadata.image.Remove(0, 7);
             }
@@ -55,7 +61,7 @@ else
         else
         {
             statusText = "Could not get metadata... try again";
-        }  
+        }
         StateHasChanged();
     }
 }

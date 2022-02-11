@@ -5,9 +5,9 @@
 @inject RestService RestService;
 @inject IAppCache AppCache;
 
-@if(currentLoopheadMetadata != null)
+@if (currentLoopheadMetadata != null)
 {
-    <div class="col-md-4" >
+    <div class="col-md-4">
         <img src="@currentLoopheadImageLink" width="250" height="250" loading="lazy" />
     </div>
 }
@@ -43,13 +43,13 @@ else
     {
         string currentLoopheadMetadataLinkCacheKey = $"currentLoopheadMetadatalink-{tokenId}";
         currentLoopheadMetadataLink = await AppCache.GetOrAddAsync(currentLoopheadMetadataLinkCacheKey, () => EthereumService.GetLoopheadMetadataLink(contractAddress, tokenId), DateTimeOffset.UtcNow.AddMinutes(120));
-        if(!String.IsNullOrEmpty(currentLoopheadMetadataLink))
+        if (!String.IsNullOrEmpty(currentLoopheadMetadataLink))
         {
             statusText = "Retrieved metadata URI, now retrieving metadata and image...";
             StateHasChanged();
             string currentLoopheadMetadataCacheKey = $"currentLoopheadMetadata-{tokenId}";
-            currentLoopheadMetadata = await AppCache.GetOrAddAsync(currentLoopheadMetadataCacheKey, () => IpfsService.GetLoopheadMetadata(currentLoopheadMetadataLink), DateTimeOffset.UtcNow.AddMinutes(120)); 
-            if(currentLoopheadMetadata != null)
+            currentLoopheadMetadata = await AppCache.GetOrAddAsync(currentLoopheadMetadataCacheKey, () => IpfsService.GetLoopheadMetadata(currentLoopheadMetadataLink), DateTimeOffset.UtcNow.AddMinutes(120));
+            if (currentLoopheadMetadata != null)
             {
                 currentLoopheadImageLink = ipfsGatewayUrl + currentLoopheadMetadata.image.Remove(0, 7);
             }
@@ -61,7 +61,7 @@ else
         else
         {
             statusText = "Could not get metadata... try again";
-        }  
+        }
         StateHasChanged();
     }
 }

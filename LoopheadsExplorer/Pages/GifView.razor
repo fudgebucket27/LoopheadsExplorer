@@ -5,13 +5,17 @@
 {
     if(i != 5)
     {
-        string gifUrl = $"{gifSite}/{loopheadNumber}/{loopheadNumber}_{i}_throb_900x900.gif";
-        <img src="@gifUrl">
+        string gifUrlOne = $"{gifSite}/{loopheadNumber}/{loopheadNumber}_{i}_throb_900x900.gif";
+      
+        <img src="@gifUrlOne">
+   
     }
     else
     {
         string gifUrl = $"{gifSite}/{loopheadNumber}/{loopheadNumber}_random_900x900.gif";
+        string gifUrlTwo = $"{gifSite}/{loopheadNumber}/{loopheadNumber}_showcase_900x900.gif";
         <img src="@gifUrl">
+        <img src="@gifUrlTwo">
     }
 }
 

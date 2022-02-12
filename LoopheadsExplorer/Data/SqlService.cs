@@ -13,42 +13,42 @@ namespace LoopheadsExplorer.Data
         {
             Configuration = _configuration;
         }
-        public async Task<List<LoopheadSqlData>> GetLoopheadNames(int _loopheadNumber)
+        public async Task<List<LoopheadNameVotesSqlData>> GetLoopheadVotes(int _loopheadNumber)
         {
             using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
             {
                 db.Open();
                 var parameters = new { LoopheadNumber = _loopheadNumber };
                 var result = await db
-                    .QueryAsync<LoopheadSqlData>
-                    ("select * from Names where loopheadnumber = @LoopheadNumber",
+                    .QueryAsync<LoopheadNameVotesSqlData>
+                    ("select loopheadnumber, loopheadname, count(loopheadname) as votes from Votes where loopheadnumber = @LoopheadNumber group by loopheadnumber,loopheadname order by count(loopheadname) desc",
                     parameters);
                 return result.ToList();
             }
         }
 
-        public async Task<List<LoopheadSqlData>> CheckIfLoopheadNameExists(string _loopheadName, int _loopheadNumber)
+        public async Task<List<LoopheadNameVotesSqlData>> CheckIfLoopheadNameExists(string _loopheadName, int _loopheadNumber)
         {
             using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
             {
                 db.Open();
                 var parameters = new { LoopheadName = _loopheadName.ToUpper(), LoopheadNumber = _loopheadNumber };
                 var result = await db
-                    .QueryAsync<LoopheadSqlData>
+                    .QueryAsync<LoopheadNameVotesSqlData>
                     ("select * from Names where upper(loopheadname) = @LoopheadName and loopheadNumber = @LoopheadNumber",
                     parameters);
                 return result.ToList();
             }
         }
 
-        public async Task<List<LoopheadSqlData>> CheckIfAddedNameToday(string _clientUUID,  int _loopheadNumber)
+        public async Task<List<LoopheadNameVotesSqlData>> CheckIfAddedNameToday(string _clientUUID,  int _loopheadNumber)
         {
             using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
             {
                 db.Open();
                 var parameters = new { ClientUUID = _clientUUID, LoopheadNumber = _loopheadNumber };
                 var result = await db
-                    .QueryAsync<LoopheadSqlData>
+                    .QueryAsync<LoopheadNameVotesSqlData>
                     ("select * from names where clientuuid = @ClientUUID and loopheadnumber = @LoopheadNumber and datesubmitted = CAST(GETDATE() as DATE)",
                     parameters);
                 return result.ToList();

@@ -10,18 +10,22 @@
 
 <h2>Loophead #@loopheadNumber</h2>
 
-@if (currentLoopheadMetadata != null && loopheadNames != null)
+@if (currentLoopheadMetadata != null && loopheadNameVotes != null)
 {
     <div class="row">
         <div class="col-md-4">
             <img src="@currentLoopheadImageLink" width="300" height="300" />
         </div>
-        <div class="col-md-8">
-            <h2>Names</h2>
-            <input @bind="loopheadNameValue" placeholder="Enter name..." /><button type="button" class="btn btn-primary btn-sm" @onclick="()=> AddLoopheadName()">Add Name</button> @nameSubmissionStatusResult
-            @foreach (var loopheadName in loopheadNames)
+    </div>
+
+   <div class="row">
+        <div class="col-md-4">
+            <h2>Name this Loophead</h2>
+            <input @bind="loopheadNameValue" class="form-control" typex="text" placeholder="Enter name here..."/><button type="button" class="btn btn-primary btn-sm" @onclick="()=> AddLoopheadName()">Add Name</button> @nameSubmissionStatusResult
+            <h3>Current Votes</h3>
+            @foreach (var loopheadName in loopheadNameVotes)
             {
-                <p class="strong">@loopheadName.LoopheadName</p>
+                <p><strong>@loopheadName.LoopheadName</strong></p>
             }
         </div>
     </div>
@@ -53,7 +57,7 @@ else
 
     private string statusText = "Retrieving metadata URI from smart contract...";
 
-    private List<LoopheadSqlData> loopheadNames;
+    private List<LoopheadNameVotesSqlData> loopheadNameVotes;
 
     private string clientUUID = "";
 
@@ -89,13 +93,13 @@ else
         {
             statusText = "Could not get metadata... try again";
         }
-        loopheadNames = await SqlService.GetLoopheadNames(Int32.Parse(loopheadNumber));
+        loopheadNameVotes = await SqlService.GetLoopheadVotes(Int32.Parse(loopheadNumber));
         StateHasChanged();
     }
 
     private async Task AddLoopheadName()
     {
-        if (!String.IsNullOrEmpty(loopheadNameValue.Trim()))
+        if (loopheadNameValue != null && !String.IsNullOrEmpty(loopheadNameValue.Trim()))
         {
             if (loopheadNameValue.Length <= 50)
             {
@@ -107,12 +111,12 @@ else
                     {
                         await SqlService.AddName(clientUUID, loopheadNameValue, Int32.Parse(loopheadNumber));
                         nameSubmissionStatusResult = "Added name!";
-                        loopheadNames = await SqlService.GetLoopheadNames(Int32.Parse(loopheadNumber));
+                        loopheadNameVotes = await SqlService.GetLoopheadVotes(Int32.Parse(loopheadNumber));
                         StateHasChanged();
                     }
                     else
                     {
-                        nameSubmissionStatusResult = "You can only add one name per day.";
+                        nameSubmissionStatusResult = "You can only add one name, per loophead, per day.";
                         StateHasChanged();
                     }
 
@@ -135,4 +139,9 @@ else
             StateHasChanged();
         }
     }
+
+    private async Task AddVote()
+    {
+    }
+
 }

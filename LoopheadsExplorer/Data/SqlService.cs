@@ -41,6 +41,20 @@ namespace LoopheadsExplorer.Data
             }
         }
 
+        public async Task<List<LoopheadNameClientVotesSqlData>> CheckIfVoteExists(string _clientUUID, string _loopheadName, int _loopheadNumber)
+        {
+            using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
+            {
+                db.Open();
+                var parameters = new { ClientUUID = _clientUUID, LoopheadName = _loopheadName.ToUpper(), LoopheadNumber = _loopheadNumber };
+                var result = await db
+                    .QueryAsync<LoopheadNameClientVotesSqlData>
+                    ("select clientuuid, loopheadnumber, loopheadname, count(loopheadname) as votes from Votes where loopheadnumber = @LoopheadNumber and upper(loopheadname) = @LoopheadName and clientuuid = @ClientUUID group by clientuuid, loopheadnumber,loopheadname;",
+                    parameters);
+                return result.ToList();
+            }
+        }
+
         public async Task<List<LoopheadNameVotesSqlData>> CheckIfAddedNameToday(string _clientUUID,  int _loopheadNumber)
         {
             using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
@@ -68,6 +82,21 @@ namespace LoopheadsExplorer.Data
                     LoopheadNumber = _loopheadNumber
                 };
                 await db.ExecuteAsync("INSERT INTO Names VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName, GETDATE())", parameters);
+                await db.ExecuteAsync("INSERT INTO Votes VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName)", parameters);
+            }
+        }
+
+        public async Task AddVote(string _clientUUID, string _loopheadName, int _loopheadNumber)
+        {
+            using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
+            {
+                db.Open();
+                var parameters = new
+                {
+                    ClientUUID = _clientUUID,
+                    LoopheadName = _loopheadName,
+                    LoopheadNumber = _loopheadNumber
+                };
                 await db.ExecuteAsync("INSERT INTO Votes VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName)", parameters);
             }
         }

@@ -23,9 +23,12 @@
             <h2>Name this Loophead</h2>
             <input @bind="loopheadNameValue" class="form-control" typex="text" placeholder="Enter name here..."/><button type="button" class="btn btn-primary btn-sm" @onclick="()=> AddLoopheadName()">Add Name</button> @nameSubmissionStatusResult
             <h3>Current Votes</h3>
-            @foreach (var loopheadName in loopheadNameVotes)
+            <p>@voteStatusText</p>
+            @foreach (var loopheadNameVote in loopheadNameVotes)
             {
-                <p><strong>@loopheadName.LoopheadName</strong></p>
+                <p><strong>@loopheadNameVote.LoopheadName - @loopheadNameVote.Votes votes 
+                    <button type="button" class="btn btn-primary btn-sm" @onclick="@(e => AddVote(e, @loopheadNameVote.LoopheadName))">Vote</button>
+                   </strong></p>
             }
         </div>
     </div>
@@ -60,6 +63,8 @@ else
     private List<LoopheadNameVotesSqlData> loopheadNameVotes;
 
     private string clientUUID = "";
+
+    private string voteStatusText = "";
 
     protected override async Task OnParametersSetAsync()
     {
@@ -140,8 +145,20 @@ else
         }
     }
 
-    private async Task AddVote()
+    private async Task AddVote(MouseEventArgs e, string _loopheadName)
     {
+        var checkIfVoteExistsResult = await SqlService.CheckIfVoteExists(clientUUID, _loopheadName, Int32.Parse(loopheadNumber));
+        if(checkIfVoteExistsResult.Count == 0)
+        {
+            await SqlService.AddName(clientUUID, _loopheadName, Int32.Parse(loopheadNumber));
+            voteStatusText = $"You've voted for {_loopheadName}!";
+        }
+        else
+        {
+            voteStatusText = $"You've already voted for {_loopheadName}!";
+        }
+        loopheadNameVotes = await SqlService.GetLoopheadVotes(Int32.Parse(loopheadNumber));
+        StateHasChanged();
     }
 
 }

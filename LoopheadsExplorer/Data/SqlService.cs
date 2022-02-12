@@ -75,17 +75,26 @@ namespace LoopheadsExplorer.Data
             using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
             {
                 db.Open();
-                var parameters = new
+                var insertParameters = new
                 {
                     ClientUUID = _clientUUID,
                     LoopheadName = _loopheadName,
                     LoopheadNumber = _loopheadNumber
                 };
-                var nameExists = await CheckIfLoopheadNameExists(_loopheadName, _loopheadNumber);
-                if (nameExists.Count == 0)
+                var selectNameExistsParameters = new
                 {
-                    await db.ExecuteAsync("INSERT INTO Names VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName, GETDATE())", parameters);
-                    await db.ExecuteAsync("INSERT INTO Votes VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName)", parameters);
+                    LoopheadName = _loopheadName.ToUpper(),
+                    LoopheadNumber = _loopheadNumber
+                };
+                var nameExists = await db
+                    .QueryAsync<LoopheadNameVotesSqlData>
+                    ("select * from Names where upper(loopheadname) = @LoopheadName and loopheadNumber = @LoopheadNumber",
+                    selectNameExistsParameters);
+                var nameExistsResult = nameExists.ToList();
+                if (nameExistsResult.Count == 0)
+                {
+                    await db.ExecuteAsync("INSERT INTO Names VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName, GETDATE())", insertParameters);
+                    await db.ExecuteAsync("INSERT INTO Votes VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName)", insertParameters);
                 }
             }
         }
@@ -95,17 +104,50 @@ namespace LoopheadsExplorer.Data
             using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
             {
                 db.Open();
-                var parameters = new
+                var insertParameters = new
                 {
                     ClientUUID = _clientUUID,
                     LoopheadName = _loopheadName,
                     LoopheadNumber = _loopheadNumber
                 };
-                var voteExists = await CheckIfVoteExists(_clientUUID, _loopheadName, _loopheadNumber);
-                if(voteExists.Count == 0)
+
+                var selectVoteExistsParameters = 
+                    new { ClientUUID = _clientUUID, 
+                        LoopheadName = _loopheadName.ToUpper(), 
+                        LoopheadNumber = _loopheadNumber };
+                var selectVoteExists = await db
+                    .QueryAsync<LoopheadNameClientVotesSqlData>
+                    ("select clientuuid, loopheadnumber, loopheadname, count(loopheadname) as votes from Votes where loopheadnumber = @LoopheadNumber and upper(loopheadname) = @LoopheadName and clientuuid = @ClientUUID group by clientuuid, loopheadnumber,loopheadname;",
+                    selectVoteExistsParameters);
+                var selectVoteExistsResult = selectVoteExists.ToList();
+
+                var selectIfClientAddedNameParameters = new { ClientUUID = _clientUUID, LoopheadNumber = _loopheadNumber };
+                var selectIfClientAddedNameExists = await db
+                    .QueryAsync<LoopheadNameVotesSqlData>
+                    ("select * from names where clientuuid = @ClientUUID and loopheadnumber = @LoopheadNumber",
+                    selectIfClientAddedNameParameters);
+                var selectIfClientAddedNameResult = selectIfClientAddedNameExists.ToList();
+
+                var selectNameExistsParameters = new
                 {
-                    await db.ExecuteAsync("INSERT INTO Votes VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName)", parameters);
-                } 
+                    LoopheadName = _loopheadName.ToUpper(),
+                    LoopheadNumber = _loopheadNumber
+                };
+                var selectNameExists = await db
+                    .QueryAsync<LoopheadNameVotesSqlData>
+                    ("select * from Names where upper(loopheadname) = @LoopheadName and loopheadNumber = @LoopheadNumber",
+                     selectNameExistsParameters);
+                var selectNameExistsResult = selectNameExists.ToList();
+
+                if (selectVoteExistsResult.Count == 0 && selectIfClientAddedNameResult.Count == 0 && selectNameExistsResult.Count > 0)
+                {
+                    await db.ExecuteAsync("INSERT INTO Votes VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName)", insertParameters);
+                }
+                else if (selectVoteExistsResult.Count == 0 && selectIfClientAddedNameResult.Count == 0 && selectNameExistsResult.Count == 0)
+                {
+                    await db.ExecuteAsync("INSERT INTO Names VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName, GETDATE())", insertParameters);
+                    await db.ExecuteAsync("INSERT INTO Votes VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName)", insertParameters);
+                }
             }
         }
 

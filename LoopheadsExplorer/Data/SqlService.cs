@@ -7,12 +7,18 @@ namespace LoopheadsExplorer.Data
 {
     public class SqlService
     {
+        private IConfiguration Configuration;
+
+        public SqlService(IConfiguration _configuration)
+        {
+            Configuration = _configuration;
+        }
         public async Task<List<LoopheadSqlData>> GetLoopheadNames(int _loopheadNumber)
         {
-            using (IDbConnection db = new SqlConnection(Environment.GetEnvironmentVariable("SQLAZURECONNSTR_DB", EnvironmentVariableTarget.Machine)))
+            using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
             {
                 db.Open();
-                var parameters = new { LoopheadNumber = _loopheadNumber  };
+                var parameters = new { LoopheadNumber = _loopheadNumber };
                 var result = await db
                     .QueryAsync<LoopheadSqlData>
                     ("select * from LoopheadNames where loopheadnumber = @LoopheadNumber",
@@ -21,9 +27,10 @@ namespace LoopheadsExplorer.Data
             }
         }
 
+
         public async Task AddName(string _clientUUID, string _loopheadName, int _loopheadNumber)
         {
-            using (IDbConnection db = new SqlConnection(Environment.GetEnvironmentVariable("SQLAZURECONNSTR_DB", EnvironmentVariableTarget.Machine)))
+            using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
             {
                 db.Open();
                 var parameters = new
@@ -38,3 +45,4 @@ namespace LoopheadsExplorer.Data
         }
     }
 }
+

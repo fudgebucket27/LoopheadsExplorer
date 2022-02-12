@@ -32,7 +32,7 @@ else
         string nftId = "0x0" + BigInteger.Parse(loopheadIpfsLink.name).ToString("x");
         tradingHistoryLink = "https://explorer.loopring.io/nft/" + minter + "-0-" + contractAddress + "-" + nftId + "-0";
         
-        string showcaseLink = $"showcase/{contractAddress}/{collectionIdIncrement}/{nftId}";
+        string showcaseLink = $"vote/{contractAddress}/{collectionIdIncrement}/{nftId}";
         string gifLink = $"gif/{collectionIdIncrement}";
         if (count != 1000)
         {   

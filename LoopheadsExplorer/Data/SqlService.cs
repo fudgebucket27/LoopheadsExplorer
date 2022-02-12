@@ -21,7 +21,21 @@ namespace LoopheadsExplorer.Data
                 var parameters = new { LoopheadNumber = _loopheadNumber };
                 var result = await db
                     .QueryAsync<LoopheadSqlData>
-                    ("select * from LoopheadNames where loopheadnumber = @LoopheadNumber",
+                    ("select * from Names where loopheadnumber = @LoopheadNumber",
+                    parameters);
+                return result.ToList();
+            }
+        }
+
+        public async Task<List<LoopheadSqlData>> CheckIfLoopheadNameExists(string _loopheadName, int _loopheadNumber)
+        {
+            using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
+            {
+                db.Open();
+                var parameters = new { LoopheadName = _loopheadName.ToUpper(), LoopheadNumber = _loopheadNumber };
+                var result = await db
+                    .QueryAsync<LoopheadSqlData>
+                    ("select * from Names where upper(loopheadname) = @LoopheadName and loopheadNumber = @LoopheadNumber",
                     parameters);
                 return result.ToList();
             }
@@ -39,8 +53,8 @@ namespace LoopheadsExplorer.Data
                     LoopheadName = _loopheadName,
                     LoopheadNumber = _loopheadNumber
                 };
-                await db.ExecuteAsync("INSERT INTO LoopheadNames VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName, GETDATE())", parameters);
-                await db.ExecuteAsync("INSERT INTO LoopheadVotes VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName)", parameters);
+                await db.ExecuteAsync("INSERT INTO Names VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName, GETDATE())", parameters);
+                await db.ExecuteAsync("INSERT INTO Votes VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName)", parameters);
             }
         }
     }

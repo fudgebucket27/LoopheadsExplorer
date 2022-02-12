@@ -1,4 +1,4 @@
-﻿@page "/showcase/{contractAddress}/{loopheadNumber}/{tokenId}";
+﻿@page "/vote/{contractAddress}/{loopheadNumber}/{tokenId}";
 @using LoopheadsExplorer.Data;
 @using LoopheadsExplorer.Models;
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
@@ -10,16 +10,16 @@
 
 <h2>Loophead #@loopheadNumber</h2>
 
-@if(currentLoopheadMetadata != null && loopheadNames != null)
+@if (currentLoopheadMetadata != null && loopheadNames != null)
 {
     <div class="row">
         <div class="col-md-4">
-                <img src="@currentLoopheadImageLink" width="300" height="300" />
+            <img src="@currentLoopheadImageLink" width="300" height="300" />
         </div>
         <div class="col-md-8">
             <h2>Names</h2>
-            <input @bind="loopheadNameValue" placeholder="Enter name..." /><button type="button" class="btn btn-primary btn-sm" @onclick="()=> AddLoopheadName()">Add Name</button> @nameSubmissionStatusResult 
-            @foreach(var loopheadName in loopheadNames )
+            <input @bind="loopheadNameValue" placeholder="Enter name..." /><button type="button" class="btn btn-primary btn-sm" @onclick="()=> AddLoopheadName()">Add Name</button> @nameSubmissionStatusResult
+            @foreach (var loopheadName in loopheadNames)
             {
                 <p class="strong">@loopheadName.LoopheadName</p>
             }
@@ -38,7 +38,7 @@ else
     public string tokenId { get; set; }
 
     [Parameter]
-    public string loopheadNumber { get; set;  }
+    public string loopheadNumber { get; set; }
 
     private string? loopheadNameValue { get; set; }
 
@@ -61,7 +61,7 @@ else
     {
         Guid generatedGuid = Guid.NewGuid();
         var tempClientGuid = await ProtectedLocalStorage.GetAsync<string>("ClientGUID");
-        if(String.IsNullOrEmpty(tempClientGuid.Value))
+        if (String.IsNullOrEmpty(tempClientGuid.Value))
         {
             await ProtectedLocalStorage.SetAsync("ClientGUID", generatedGuid.ToString());
             clientUUID = generatedGuid.ToString();
@@ -71,12 +71,12 @@ else
             clientUUID = tempClientGuid.Value;
         }
         currentLoopheadMetadataLink = await EthereumService.GetLoopheadMetadataLink(contractAddress, tokenId);
-        if(!String.IsNullOrEmpty(currentLoopheadMetadataLink))
+        if (!String.IsNullOrEmpty(currentLoopheadMetadataLink))
         {
             statusText = "Retrieved metadata URI, now retrieving metadata and image...";
             StateHasChanged();
-            currentLoopheadMetadata = await IpfsService.GetLoopheadMetadata(currentLoopheadMetadataLink); 
-            if(currentLoopheadMetadata != null)
+            currentLoopheadMetadata = await IpfsService.GetLoopheadMetadata(currentLoopheadMetadataLink);
+            if (currentLoopheadMetadata != null)
             {
                 currentLoopheadImageLink = ipfsGatewayUrl + currentLoopheadMetadata.image.Remove(0, 7);
             }
@@ -88,18 +88,41 @@ else
         else
         {
             statusText = "Could not get metadata... try again";
-        }  
+        }
         loopheadNames = await SqlService.GetLoopheadNames(Int32.Parse(loopheadNumber));
         StateHasChanged();
     }
 
     private async Task AddLoopheadName()
     {
-        if(!String.IsNullOrEmpty(loopheadNameValue))
+        if (!String.IsNullOrEmpty(loopheadNameValue.Trim()))
         {
-            await SqlService.AddName(clientUUID, loopheadNameValue, Int32.Parse(loopheadNumber));
-            nameSubmissionStatusResult = "Added name!";
-            loopheadNames = await SqlService.GetLoopheadNames(Int32.Parse(loopheadNumber));
+            if (loopheadNameValue.Length <= 50)
+            {
+                var doesLoopheadNameExist = await SqlService.CheckIfLoopheadNameExists(loopheadNameValue, Int32.Parse(loopheadNumber));
+                if (doesLoopheadNameExist.Count == 0)
+                {
+                    await SqlService.AddName(clientUUID, loopheadNameValue, Int32.Parse(loopheadNumber));
+                    nameSubmissionStatusResult = "Added name!";
+                    loopheadNames = await SqlService.GetLoopheadNames(Int32.Parse(loopheadNumber));
+                    StateHasChanged();
+                }
+                else
+                {
+                    nameSubmissionStatusResult = "Name already exists!";
+                    StateHasChanged();
+                }
+
+            }
+            else
+            {
+                nameSubmissionStatusResult = "Name too long. Max 50 chars.";
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            nameSubmissionStatusResult = "Enter a name!";
             StateHasChanged();
         }
     }

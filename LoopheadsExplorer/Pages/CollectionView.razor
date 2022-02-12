@@ -37,7 +37,7 @@ else
         if (count != 1000)
         {   
                         <h5>Loophead #@collectionIdIncrement 
-                            <button type="button" class="btn btn-primary btn-sm" @onclick="@(e => GetLoopheadVariationMetadataLinks(e, loopheadIpfsLink.cid))">View variations</button>
+                            <button type="button" class="btn btn-primary btn-sm" @onclick="async () => await GetLoopheadVariationMetadataLinks(loopheadIpfsLink.cid)">View variations</button>
                             <a href="@gifLink" target="_blank"><button type= "button" class="btn btn-primary btn-sm">View Gifs</button></a>
                             <a href="@showcaseLink" target="_blank"><button type= "button" class="btn btn-primary btn-sm">Vote Name</button></a>
                             <a href="@tradingHistoryLink" target="_blank"><button type="button" class="btn btn-primary btn-sm" >View trading history</button></a>
@@ -58,7 +58,7 @@ else
                             string variationNavTabId = "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString() + "-tab";
                             string variationNavTabTarget = "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString();
                                               <li class="nav-item" role="presentation">
-                                                  <button class="nav-link" id="@variationNavTabId"  data-bs-toggle="pill" data-bs-target="#@variationNavTabTarget" type="button" role="tab" aria-controls="@variationNavTabTarget" aria-selected="false" @onclick="@(e => GetLoopheadVariationMetadata(e, loopheadVariations.metadataCidLink))">@loopheadVariations.baseId-@loopheadVariations.variation</button>
+                                                  <button class="nav-link" id="@variationNavTabId"  data-bs-toggle="pill" data-bs-target="#@variationNavTabTarget" type="button" role="tab" aria-controls="@variationNavTabTarget" aria-selected="false" @onclick="async () => await GetLoopheadVariationMetadata(loopheadVariations.metadataCidLink)">@loopheadVariations.baseId-@loopheadVariations.variation</button>
                                               </li>
                         }
                     }
@@ -146,7 +146,7 @@ else
         }
     }
 
-    private async void GetLoopheadVariationMetadataLinks(MouseEventArgs e, string loopheadMetadataLink)
+    private async Task GetLoopheadVariationMetadataLinks(string loopheadMetadataLink)
     {
         foreach (var loopheadVariationRetrievalState in loopheadVariationRetrievalStates)
         {
@@ -209,7 +209,7 @@ else
         }
     }
 
-    private async void GetLoopheadVariationMetadata(MouseEventArgs e, string loopheadMetadataLink)
+    private async Task GetLoopheadVariationMetadata(string loopheadMetadataLink)
     {
         foreach (var loopheadMetadataRetrievalState in loopheadMetadataRetrievalStates)
         {

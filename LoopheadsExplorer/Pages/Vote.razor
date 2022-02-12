@@ -28,13 +28,12 @@
             <p>@voteStatusText</p>
             @for (int i = 0; i < loopheadNameVotes.Count; i++)
             {
-
-                Debug.WriteLine($"index {i}");
+                int j = i;
                 <p>
                     <strong>
                         @loopheadNameVotes[i].LoopheadName - @loopheadNameVotes[i].Votes votes
-                        <button type="button" class="btn btn-primary btn-sm" disabled="@addVoteButtonState[i]" @onclick="async ()=> await AddVote(loopheadNameVotes[i].LoopheadName, i)">Vote</button>
-                        <button type="button" class="btn btn-primary btn-sm" disabled="@removeVoteButtonState[i]" @onclick="async ()=>  await RemoveVote(loopheadNameVotes[i].LoopheadName, i)">Remove Vote</button>
+                        <button type="button" class="btn btn-primary btn-sm" disabled="@addVoteButtonState[j]" @onclick="async ()=> await AddVote(loopheadNameVotes[j].LoopheadName, j)">Vote</button>
+                        <button type="button" class="btn btn-primary btn-sm" disabled="@removeVoteButtonState[j]" @onclick="async ()=>  await RemoveVote(loopheadNameVotes[j].LoopheadName, j)">Remove Vote</button>
                     </strong>
                 </p>
 

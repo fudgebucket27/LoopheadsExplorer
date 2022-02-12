@@ -124,7 +124,7 @@ else
     {
         if (loopheadNameValue != null && !String.IsNullOrEmpty(loopheadNameValue.Trim()))
         {
-            if (loopheadNameValue.Length <= 50)
+            if (loopheadNameValue.Length <= 100)
             {
                 addNameButtonState = true;
                 StateHasChanged();
@@ -162,7 +162,7 @@ else
             }
             else
             {
-                nameSubmissionStatusResult = "Name too long. Max 50 chars.";
+                nameSubmissionStatusResult = "Name too long. Max 100 chars.";
                 StateHasChanged();
             }
         }

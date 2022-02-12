@@ -21,15 +21,19 @@
    <div class="row">
         <div class="col-md-6">
             <h2>Name this Loophead</h2>
-            <input @bind="loopheadNameValue" class="form-control" typex="text" placeholder="Enter name here..."/><button type="button" class="btn btn-primary btn-sm" @onclick="()=> AddLoopheadName()">Add Name</button> @nameSubmissionStatusResult
+            <input @bind="loopheadNameValue" class="form-control" typex="text" placeholder="Enter name here..."/><button type="button" class="btn btn-primary btn-sm" disabled="@addNameButtonState"  @onclick="()=> AddLoopheadName()">Add Name</button> @nameSubmissionStatusResult
             <h3>Current Votes</h3>
             <p>@voteStatusText</p>
+            @{int count = 0;}
             @foreach (var loopheadNameVote in loopheadNameVotes)
             {
+                addVoteButtonState.Add(false);
+                removeVoteButtonState.Add(false);
                 <p><strong>@loopheadNameVote.LoopheadName - @loopheadNameVote.Votes votes 
-                    <button type="button" class="btn btn-primary btn-sm" @onclick="@(e => AddVote(e, @loopheadNameVote.LoopheadName))">Vote</button>
-                    <button type="button" class="btn btn-primary btn-sm" @onclick="@(e => RemoveVote(e, @loopheadNameVote.LoopheadName))">Remove Vote</button>
+                    <button type="button" class="btn btn-primary btn-sm" disabled="@addVoteButtonState[count]" @onclick="@(e => AddVote(e, @loopheadNameVote.LoopheadName, count))">Vote</button>
+                    <button type="button" class="btn btn-primary btn-sm" disabled="@removeVoteButtonState[count]" @onclick="@(e => RemoveVote(e, @loopheadNameVote.LoopheadName, count))">Remove Vote</button>
                    </strong></p>
+                count++;
             }
         </div>
     </div>
@@ -61,11 +65,16 @@ else
 
     private string statusText = "Retrieving metadata URI from smart contract...";
 
+    private bool addNameButtonState = false;
+
     private List<LoopheadNameVotesSqlData> loopheadNameVotes;
 
     private string clientUUID = "";
 
     private string voteStatusText = "";
+
+    private List<bool> addVoteButtonState = new List<bool>();
+    private List<bool> removeVoteButtonState = new List<bool>();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -109,6 +118,8 @@ else
         {
             if (loopheadNameValue.Length <= 50)
             {
+                addNameButtonState = true;
+                StateHasChanged();
                 var doesLoopheadNameExist = await SqlService.CheckIfLoopheadNameExists(loopheadNameValue, Int32.Parse(loopheadNumber));
                 if (doesLoopheadNameExist.Count == 0)
                 {
@@ -125,13 +136,14 @@ else
                         nameSubmissionStatusResult = "You can only add one name, per loophead, per day.";
                         StateHasChanged();
                     }
-
                 }
                 else
                 {
                     nameSubmissionStatusResult = "Name already exists!";
                     StateHasChanged();
                 }
+                addNameButtonState = false;
+                StateHasChanged();
             }
             else
             {
@@ -146,8 +158,10 @@ else
         }
     }
 
-    private async Task AddVote(MouseEventArgs e, string _loopheadName)
+    private async Task AddVote(MouseEventArgs e, string _loopheadName, int buttonIndex)
     {
+        addVoteButtonState[buttonIndex] = true;
+        StateHasChanged();
         var checkIfVoteExistsResult = await SqlService.CheckIfVoteExists(clientUUID, _loopheadName, Int32.Parse(loopheadNumber));
         if(checkIfVoteExistsResult.Count == 0)
         {
@@ -159,11 +173,14 @@ else
             voteStatusText = $"You've already voted for '{_loopheadName}'!";
         }
         loopheadNameVotes = await SqlService.GetLoopheadVotes(Int32.Parse(loopheadNumber));
+        addVoteButtonState[buttonIndex] = false;
         StateHasChanged();
     }
 
-       private async Task RemoveVote(MouseEventArgs e, string _loopheadName)
+       private async Task RemoveVote(MouseEventArgs e, string _loopheadName, int buttonIndex)
     {
+        removeVoteButtonState[buttonIndex] = true;
+        StateHasChanged();
         var checkIfVoteExistsResult = await SqlService.CheckIfVoteExists(clientUUID, _loopheadName, Int32.Parse(loopheadNumber));
         if(checkIfVoteExistsResult.Count > 0)
         {
@@ -175,6 +192,7 @@ else
             voteStatusText = $"You've already removed your vote for '{_loopheadName}'!";
         }
         loopheadNameVotes = await SqlService.GetLoopheadVotes(Int32.Parse(loopheadNumber));
+        removeVoteButtonState[buttonIndex] = false;
         StateHasChanged();
     }
 

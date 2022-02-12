@@ -41,6 +41,20 @@ namespace LoopheadsExplorer.Data
             }
         }
 
+        public async Task<List<LoopheadSqlData>> CheckIfAddedNameToday(string _clientUUID,  int _loopheadNumber)
+        {
+            using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
+            {
+                db.Open();
+                var parameters = new { ClientUUID = _clientUUID, LoopheadNumber = _loopheadNumber };
+                var result = await db
+                    .QueryAsync<LoopheadSqlData>
+                    ("select * from names where clientuuid = @ClientUUID and loopheadnumber = @LoopheadNumber and datesubmitted = CAST(GETDATE() as DATE)",
+                    parameters);
+                return result.ToList();
+            }
+        }
+
 
         public async Task AddName(string _clientUUID, string _loopheadName, int _loopheadNumber)
         {

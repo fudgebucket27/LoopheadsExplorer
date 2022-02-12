@@ -1,0 +1,231 @@
+﻿@page "/vote/{contractAddress}/{loopheadNumber}/{tokenId}";
+@using LoopheadsExplorer.Data;
+@using LoopheadsExplorer.Models;
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+@using System.Diagnostics
+@inject EthereumService EthereumService;
+@inject IpfsService IpfsService;
+@inject RestService RestService;
+@inject SqlService SqlService;
+@inject ProtectedLocalStorage ProtectedLocalStorage;
+
+<h2>Loophead #@loopheadNumber</h2>
+
+@if (currentLoopheadMetadata != null && loopheadNameVotes != null)
+{
+    <div class="row">
+        <div class="col-md-4">
+            <img src="@currentLoopheadImageLink" width="300" height="300" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Name this Loophead</h2>
+            <input @bind="loopheadNameValue" class="form-control" typex="text" placeholder="Enter name here..." />
+            <button type="button" class="btn btn-primary btn-sm" disabled="@addNameButtonState" @onclick="async ()=> await AddLoopheadName()">Add Name</button> @nameSubmissionStatusResult
+            <h3>Current Votes</h3>
+            <p>@voteStatusText</p>
+            @for (int i = 0; i < loopheadNameVotes.Count; i++)
+            {
+                int j = i;
+                <p>
+                    <strong>
+                        @loopheadNameVotes[i].LoopheadName - @loopheadNameVotes[i].Votes votes
+                        <button type="button" class="btn btn-primary btn-sm" disabled="@addVoteButtonState[j]" @onclick="async ()=> await AddVote(loopheadNameVotes[j].LoopheadName, j)">Vote</button>
+                        <button type="button" class="btn btn-primary btn-sm" disabled="@removeVoteButtonState[j]" @onclick="async ()=>  await RemoveVote(loopheadNameVotes[j].LoopheadName, j)">Remove Vote</button>
+                    </strong>
+                </p>
+            }
+        </div>
+    </div>
+
+}
+else
+{
+    <p>@statusText</p>
+}
+@code {
+    [Parameter]
+    public string contractAddress { get; set; }
+
+    [Parameter]
+    public string tokenId { get; set; }
+
+    [Parameter]
+    public string loopheadNumber { get; set; }
+
+    private string? loopheadNameValue { get; set; }
+
+    private string currentLoopheadMetadataLink { get; set; }
+
+    private string nameSubmissionStatusResult = "";
+
+    private string ipfsGatewayUrl = "https://loopring.mypinata.cloud/ipfs/";
+
+    private LoopheadMetadata currentLoopheadMetadata { get; set; }
+    private string currentLoopheadImageLink { get; set; }
+
+    private string statusText = "Retrieving metadata URI from smart contract...";
+
+    private bool addNameButtonState = false;
+
+    private List<LoopheadNameVotesSqlData> loopheadNameVotes;
+
+    private string clientUUID = "";
+
+    private string voteStatusText = "";
+
+    private List<bool> addVoteButtonState = new List<bool>();
+    private List<bool> removeVoteButtonState = new List<bool>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Guid generatedGuid = Guid.NewGuid();
+        var tempClientGuid = await ProtectedLocalStorage.GetAsync<string>("ClientGUID");
+        if (String.IsNullOrEmpty(tempClientGuid.Value))
+        {
+            await ProtectedLocalStorage.SetAsync("ClientGUID", generatedGuid.ToString());
+            clientUUID = generatedGuid.ToString();
+        }
+        else
+        {
+            clientUUID = tempClientGuid.Value;
+        }
+        currentLoopheadMetadataLink = await EthereumService.GetLoopheadMetadataLink(contractAddress, tokenId);
+        if (!String.IsNullOrEmpty(currentLoopheadMetadataLink))
+        {
+            statusText = "Retrieved metadata URI, now retrieving metadata and image...";
+            StateHasChanged();
+            currentLoopheadMetadata = await IpfsService.GetLoopheadMetadata(currentLoopheadMetadataLink);
+            if (currentLoopheadMetadata != null)
+            {
+                currentLoopheadImageLink = ipfsGatewayUrl + currentLoopheadMetadata.image.Remove(0, 7);
+            }
+            else
+            {
+                statusText = "Image retrieval failed... try again";
+            }
+        }
+        else
+        {
+            statusText = "Could not get metadata... try again";
+        }
+        loopheadNameVotes = await SqlService.GetLoopheadVotes(Int32.Parse(loopheadNumber));
+        foreach (var loopheadNameVote in loopheadNameVotes)
+        {
+            addVoteButtonState.Add(false);
+            removeVoteButtonState.Add(false);
+        }
+        StateHasChanged();
+    }
+
+    private async Task AddLoopheadName()
+    {
+        if (loopheadNameValue != null && !String.IsNullOrEmpty(loopheadNameValue.Trim()))
+        {
+            if (loopheadNameValue.Length <= 100)
+            {
+                addNameButtonState = true;
+                StateHasChanged();
+                var doesLoopheadNameExist = await SqlService.CheckIfLoopheadNameExists(loopheadNameValue, Int32.Parse(loopheadNumber));
+                if (doesLoopheadNameExist.Count == 0)
+                {
+                    var alreadyAddedANameToday = await SqlService.CheckIfClientAddedNameAlready(clientUUID, Int32.Parse(loopheadNumber));
+                    if (alreadyAddedANameToday.Count == 0)
+                    {
+                        await SqlService.AddName(clientUUID, loopheadNameValue, Int32.Parse(loopheadNumber));
+                        nameSubmissionStatusResult = "Added name!";
+                        loopheadNameVotes = await SqlService.GetLoopheadVotes(Int32.Parse(loopheadNumber));
+                        addVoteButtonState.Clear();
+                        removeVoteButtonState.Clear();
+                        foreach (var loopheadNameVote in loopheadNameVotes)
+                        {
+                            addVoteButtonState.Add(false);
+                            removeVoteButtonState.Add(false);
+                        }
+                        StateHasChanged();
+                    }
+                    else
+                    {
+                        nameSubmissionStatusResult = "You can only add one name, per loophead";
+                        StateHasChanged();
+                    }
+                }
+                else
+                {
+                    nameSubmissionStatusResult = "Name already exists!";
+                    StateHasChanged();
+                }
+                addNameButtonState = false;
+                StateHasChanged();
+            }
+            else
+            {
+                nameSubmissionStatusResult = "Name too long. Max 100 chars.";
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            nameSubmissionStatusResult = "Enter a name!";
+            StateHasChanged();
+        }
+    }
+
+    private async Task AddVote(string _loopheadName, int buttonIndex)
+    {
+        Debug.WriteLine($"button index {buttonIndex}");
+        addVoteButtonState[buttonIndex] = true;
+        removeVoteButtonState[buttonIndex] = true;
+        StateHasChanged();
+        var checkIfVoteExistsResult = await SqlService.CheckIfVoteExists(clientUUID, _loopheadName, Int32.Parse(loopheadNumber));
+
+        if (checkIfVoteExistsResult.Count == 0)
+        {
+            await SqlService.AddVote(clientUUID, _loopheadName, Int32.Parse(loopheadNumber));
+            voteStatusText = $"You've voted for '{_loopheadName}'!";
+        }
+        else
+        {
+            voteStatusText = $"You've already voted for '{_loopheadName}'!";
+        }
+        loopheadNameVotes = await SqlService.GetLoopheadVotes(Int32.Parse(loopheadNumber));
+        addVoteButtonState.Clear();
+        removeVoteButtonState.Clear();
+        foreach (var loopheadNameVote in loopheadNameVotes)
+        {
+            addVoteButtonState.Add(false);
+            removeVoteButtonState.Add(false);
+        }
+        StateHasChanged();
+    }
+
+    private async Task RemoveVote(string _loopheadName, int buttonIndex)
+    {
+        addVoteButtonState[buttonIndex] = true;
+        removeVoteButtonState[buttonIndex] = true;
+        StateHasChanged();
+        var checkIfVoteExistsResult = await SqlService.CheckIfVoteExists(clientUUID, _loopheadName, Int32.Parse(loopheadNumber));
+
+        if (checkIfVoteExistsResult.Count > 0)
+        {
+            await SqlService.RemoveVote(clientUUID, _loopheadName, Int32.Parse(loopheadNumber));
+            voteStatusText = $"You've removed your vote for '{_loopheadName}'!";
+        }
+        else
+        {
+            voteStatusText = $"You've already removed your vote for '{_loopheadName}'!";
+        }
+        loopheadNameVotes = await SqlService.GetLoopheadVotes(Int32.Parse(loopheadNumber));
+        addVoteButtonState.Clear();
+        removeVoteButtonState.Clear();
+        foreach (var loopheadNameVote in loopheadNameVotes)
+        {
+            addVoteButtonState.Add(false);
+            removeVoteButtonState.Add(false);
+        }
+        StateHasChanged();
+    }
+
+}

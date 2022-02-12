@@ -81,8 +81,12 @@ namespace LoopheadsExplorer.Data
                     LoopheadName = _loopheadName,
                     LoopheadNumber = _loopheadNumber
                 };
-                await db.ExecuteAsync("INSERT INTO Names VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName, GETDATE())", parameters);
-                await db.ExecuteAsync("INSERT INTO Votes VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName)", parameters);
+                var nameExists = await CheckIfLoopheadNameExists(_loopheadName, _loopheadNumber);
+                if (nameExists.Count == 0)
+                {
+                    await db.ExecuteAsync("INSERT INTO Names VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName, GETDATE())", parameters);
+                    await db.ExecuteAsync("INSERT INTO Votes VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName)", parameters);
+                }
             }
         }
 
@@ -97,7 +101,11 @@ namespace LoopheadsExplorer.Data
                     LoopheadName = _loopheadName,
                     LoopheadNumber = _loopheadNumber
                 };
-                await db.ExecuteAsync("INSERT INTO Votes VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName)", parameters);
+                var voteExists = await CheckIfVoteExists(_clientUUID, _loopheadName, _loopheadNumber);
+                if(voteExists.Count == 0)
+                {
+                    await db.ExecuteAsync("INSERT INTO Votes VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName)", parameters);
+                } 
             }
         }
 

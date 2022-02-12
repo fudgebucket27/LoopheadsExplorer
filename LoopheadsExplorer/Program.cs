@@ -12,6 +12,7 @@ builder.Services.AddSingleton<IpfsService>();
 builder.Services.AddSingleton<RestService>();
 builder.Services.AddHttpClient();
 builder.Services.AddLazyCache();
+builder.Services.AddScoped<SqlService>();
 
 var app = builder.Build();
 

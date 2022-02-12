@@ -1,16 +1,30 @@
 ﻿@page "/showcase/{contractAddress}/{loopheadNumber}/{tokenId}";
 @using LoopheadsExplorer.Data;
 @using LoopheadsExplorer.Models;
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 @inject EthereumService EthereumService;
 @inject IpfsService IpfsService;
 @inject RestService RestService;
+@inject SqlService SqlService;
+@inject ProtectedLocalStorage ProtectedLocalStorage;
 
-<h1>Loophead #@loopheadNumber</h1>
+<h2>Loophead #@loopheadNumber</h2>
 
-@if(currentLoopheadMetadata != null)
+@if(currentLoopheadMetadata != null && loopheadNames != null)
 {
-    <h2>Current Variation</h2>
-    <img src="@currentLoopheadImageLink" loading="lazy" />
+    <div class="row">
+        <div class="col-md-4">
+                <img src="@currentLoopheadImageLink" width="300" height="300" />
+        </div>
+        <div class="col-md-8">
+            <h2>Names</h2>
+            <input @bind="loopheadNameValue" placeholder="Enter name..." /><button type="button" class="btn btn-primary btn-sm" @onclick="()=> AddLoopheadName()">Add Name</button> @nameSubmissionStatusResult 
+            @foreach(var loopheadName in loopheadNames )
+            {
+                <p class="strong">@loopheadName.LoopheadName</p>
+            }
+        </div>
+    </div>
 }
 else
 {
@@ -24,9 +38,13 @@ else
     public string tokenId { get; set; }
 
     [Parameter]
-    public string? loopheadNumber { get; set;  }
+    public string loopheadNumber { get; set;  }
+
+    private string? loopheadNameValue { get; set; }
 
     private string currentLoopheadMetadataLink { get; set; }
+
+    private string nameSubmissionStatusResult = "";
 
     private string ipfsGatewayUrl = "https://loopring.mypinata.cloud/ipfs/";
 
@@ -35,8 +53,23 @@ else
 
     private string statusText = "Retrieving metadata URI from smart contract...";
 
+    private List<LoopheadSqlData> loopheadNames;
+
+    private string clientUUID = "";
+
     protected override async Task OnParametersSetAsync()
     {
+        Guid generatedGuid = Guid.NewGuid();
+        var tempClientGuid = await ProtectedLocalStorage.GetAsync<string>("ClientGUID");
+        if(String.IsNullOrEmpty(tempClientGuid.Value))
+        {
+            await ProtectedLocalStorage.SetAsync("ClientGUID", generatedGuid.ToString());
+            clientUUID = generatedGuid.ToString();
+        }
+        else
+        {
+            clientUUID = tempClientGuid.Value;
+        }
         currentLoopheadMetadataLink = await EthereumService.GetLoopheadMetadataLink(contractAddress, tokenId);
         if(!String.IsNullOrEmpty(currentLoopheadMetadataLink))
         {
@@ -56,6 +89,18 @@ else
         {
             statusText = "Could not get metadata... try again";
         }  
+        loopheadNames = await SqlService.GetLoopheadNames(Int32.Parse(loopheadNumber));
         StateHasChanged();
+    }
+
+    private async Task AddLoopheadName()
+    {
+        if(!String.IsNullOrEmpty(loopheadNameValue))
+        {
+            await SqlService.AddName(clientUUID, loopheadNameValue, Int32.Parse(loopheadNumber));
+            nameSubmissionStatusResult = "Added name!";
+            loopheadNames = await SqlService.GetLoopheadNames(Int32.Parse(loopheadNumber));
+            StateHasChanged();
+        }
     }
 }

@@ -55,7 +55,7 @@ namespace LoopheadsExplorer.Data
             }
         }
 
-        public async Task<List<LoopheadNameVotesSqlData>> CheckIfAddedNameToday(string _clientUUID,  int _loopheadNumber)
+        public async Task<List<LoopheadNameVotesSqlData>> CheckIfClientAddedNameAlready(string _clientUUID,  int _loopheadNumber)
         {
             using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
             {
@@ -63,7 +63,7 @@ namespace LoopheadsExplorer.Data
                 var parameters = new { ClientUUID = _clientUUID, LoopheadNumber = _loopheadNumber };
                 var result = await db
                     .QueryAsync<LoopheadNameVotesSqlData>
-                    ("select * from names where clientuuid = @ClientUUID and loopheadnumber = @LoopheadNumber and datesubmitted = CAST(GETDATE() as DATE)",
+                    ("select * from names where clientuuid = @ClientUUID and loopheadnumber = @LoopheadNumber",
                     parameters);
                 return result.ToList();
             }

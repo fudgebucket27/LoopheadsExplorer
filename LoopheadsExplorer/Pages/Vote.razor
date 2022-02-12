@@ -131,7 +131,7 @@ else
                 var doesLoopheadNameExist = await SqlService.CheckIfLoopheadNameExists(loopheadNameValue, Int32.Parse(loopheadNumber));
                 if (doesLoopheadNameExist.Count == 0)
                 {
-                    var alreadyAddedANameToday = await SqlService.CheckIfAddedNameToday(clientUUID, Int32.Parse(loopheadNumber));
+                    var alreadyAddedANameToday = await SqlService.CheckIfClientAddedNameAlready(clientUUID, Int32.Parse(loopheadNumber));
                     if (alreadyAddedANameToday.Count == 0)
                     {
                         await SqlService.AddName(clientUUID, loopheadNameValue, Int32.Parse(loopheadNumber));
@@ -148,7 +148,7 @@ else
                     }
                     else
                     {
-                        nameSubmissionStatusResult = "You can only add one name, per loophead, per day.";
+                        nameSubmissionStatusResult = "You can only add one name, per loophead";
                         StateHasChanged();
                     }
                 }

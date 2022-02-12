@@ -1,9 +1,9 @@
-﻿@page "/name/{LoopheadNumber}"
+﻿@page "/votename/{LoopheadNumber}"
 @using LoopheadsExplorer.Models;
 @using LoopheadsExplorer.Data;
 @inject SqlService SqlService;
 
-<h2>@LoopheadNumber</h2>
+<h2>Loophead #@LoopheadNumber</h2>
 
 @if(loopheadSQLDatas != null)
 {

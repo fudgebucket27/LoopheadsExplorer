@@ -100,6 +100,29 @@ namespace LoopheadsExplorer.Data
                 await db.ExecuteAsync("INSERT INTO Votes VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName)", parameters);
             }
         }
+
+        public async Task RemoveVote(string _clientUUID, string _loopheadName, int _loopheadNumber)
+        {
+            using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
+            {
+                db.Open();
+                var parameters = new
+                {
+                    ClientUUID = _clientUUID,
+                    LoopheadName = _loopheadName,
+                    LoopheadNumber = _loopheadNumber
+                };
+                await db.ExecuteAsync("delete from Votes where clientUUID = @ClientUUID and loopheadNumber = @LoopheadNumber and loopheadName =  @LoopheadName", parameters);
+                var queryVotesResult = await db
+                      .QueryAsync<LoopheadNameVotesSqlData>
+                      ("select * from votes where loopheadname = @LoopheadName and loopheadnumber = @LoopheadNumber",
+                      parameters);
+                if(queryVotesResult.ToList().Count == 0)
+                {
+                    await db.ExecuteAsync("delete from names where loopheadname = @LoopheadName and loopheadnumber = @LoopheadNumber", parameters);
+                }
+            }
+        }
     }
 }
 

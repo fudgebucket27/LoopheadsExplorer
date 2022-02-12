@@ -18,22 +18,25 @@
         </div>
     </div>
 
-   <div class="row">
+    <div class="row">
         <div class="col-md-6">
             <h2>Name this Loophead</h2>
-            <input @bind="loopheadNameValue" class="form-control" typex="text" placeholder="Enter name here..."/>
-            <button type="button" class="btn btn-primary btn-sm" disabled="@addNameButtonState"  @onclick="async ()=> await AddLoopheadName()">Add Name</button> @nameSubmissionStatusResult
+            <input @bind="loopheadNameValue" class="form-control" typex="text" placeholder="Enter name here..." />
+            <button type="button" class="btn btn-primary btn-sm" disabled="@addNameButtonState" @onclick="async ()=> await AddLoopheadName()">Add Name</button> @nameSubmissionStatusResult
             <h3>Current Votes</h3>
             <p>@voteStatusText</p>
-            @{int count = 0;}
+            @{
+                int count = 0;
+            }
             @foreach (var loopheadNameVote in loopheadNameVotes)
             {
-                addVoteButtonState.Add(false);
-                removeVoteButtonState.Add(false);
-                <p><strong>@loopheadNameVote.LoopheadName - @loopheadNameVote.Votes votes 
-                    <button type="button" class="btn btn-primary btn-sm" disabled="@addVoteButtonState[count]" @onclick="async ()=> await AddVote(loopheadNameVote.LoopheadName, count)">Vote</button>
-                    <button type="button" class="btn btn-primary btn-sm" disabled="@removeVoteButtonState[count]" @onclick="async ()=>  await RemoveVote(loopheadNameVote.LoopheadName, count)">Remove Vote</button>
-                   </strong></p>
+                <p>
+                    <strong>
+                        @loopheadNameVote.LoopheadName - @loopheadNameVote.Votes votes
+                        <button type="button" class="btn btn-primary btn-sm" disabled=@addVoteButtonState[count] @onclick="async ()=> await AddVote(loopheadNameVote.LoopheadName, count)">Vote</button>
+                        <button type="button" class="btn btn-primary btn-sm" disabled=@removeVoteButtonState[count] @onclick="async ()=>  await RemoveVote(loopheadNameVote.LoopheadName, count)">Remove Vote</button>
+                    </strong>
+                </p>
                 count++;
             }
         </div>
@@ -110,6 +113,11 @@ else
             statusText = "Could not get metadata... try again";
         }
         loopheadNameVotes = await SqlService.GetLoopheadVotes(Int32.Parse(loopheadNumber));
+        foreach (var loopheadNameVote in loopheadNameVotes)
+        {
+            addVoteButtonState.Add(false);
+            removeVoteButtonState.Add(false);
+        }
         StateHasChanged();
     }
 
@@ -130,6 +138,13 @@ else
                         await SqlService.AddName(clientUUID, loopheadNameValue, Int32.Parse(loopheadNumber));
                         nameSubmissionStatusResult = "Added name!";
                         loopheadNameVotes = await SqlService.GetLoopheadVotes(Int32.Parse(loopheadNumber));
+                        addVoteButtonState.Clear();
+                        removeVoteButtonState.Clear();
+                        foreach (var loopheadNameVote in loopheadNameVotes)
+                        {
+                            addVoteButtonState.Add(false);
+                            removeVoteButtonState.Add(false);
+                        }
                         StateHasChanged();
                     }
                     else
@@ -161,11 +176,12 @@ else
 
     private async Task AddVote(string _loopheadName, int buttonIndex)
     {
-        addVoteButtonState[buttonIndex] = true;
+        addVoteButtonState[buttonIndex - 1] = true;
+        removeVoteButtonState[buttonIndex - 1] = true;
         StateHasChanged();
         var checkIfVoteExistsResult = await SqlService.CheckIfVoteExists(clientUUID, _loopheadName, Int32.Parse(loopheadNumber));
 
-        if(checkIfVoteExistsResult.Count == 0)
+        if (checkIfVoteExistsResult.Count == 0)
         {
             await SqlService.AddVote(clientUUID, _loopheadName, Int32.Parse(loopheadNumber));
             voteStatusText = $"You've voted for '{_loopheadName}'!";
@@ -175,17 +191,24 @@ else
             voteStatusText = $"You've already voted for '{_loopheadName}'!";
         }
         loopheadNameVotes = await SqlService.GetLoopheadVotes(Int32.Parse(loopheadNumber));
-        addVoteButtonState[buttonIndex] = false;
+        addVoteButtonState.Clear();
+        removeVoteButtonState.Clear();
+        foreach (var loopheadNameVote in loopheadNameVotes)
+        {
+            addVoteButtonState.Add(false);
+            removeVoteButtonState.Add(false);
+        }
         StateHasChanged();
     }
 
-       private async Task RemoveVote(string _loopheadName, int buttonIndex)
+    private async Task RemoveVote(string _loopheadName, int buttonIndex)
     {
-        removeVoteButtonState[buttonIndex] = true;
+        addVoteButtonState[buttonIndex - 1] = true;
+        removeVoteButtonState[buttonIndex - 1] = true;
         StateHasChanged();
         var checkIfVoteExistsResult = await SqlService.CheckIfVoteExists(clientUUID, _loopheadName, Int32.Parse(loopheadNumber));
 
-        if(checkIfVoteExistsResult.Count > 0)
+        if (checkIfVoteExistsResult.Count > 0)
         {
             await SqlService.RemoveVote(clientUUID, _loopheadName, Int32.Parse(loopheadNumber));
             voteStatusText = $"You've removed your vote for '{_loopheadName}'!";
@@ -195,7 +218,13 @@ else
             voteStatusText = $"You've already removed your vote for '{_loopheadName}'!";
         }
         loopheadNameVotes = await SqlService.GetLoopheadVotes(Int32.Parse(loopheadNumber));
-        removeVoteButtonState[buttonIndex] = false;
+        addVoteButtonState.Clear();
+        removeVoteButtonState.Clear();
+        foreach (var loopheadNameVote in loopheadNameVotes)
+        {
+            addVoteButtonState.Add(false);
+            removeVoteButtonState.Add(false);
+        }
         StateHasChanged();
     }
 

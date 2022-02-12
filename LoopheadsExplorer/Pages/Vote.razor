@@ -2,6 +2,7 @@
 @using LoopheadsExplorer.Data;
 @using LoopheadsExplorer.Models;
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+@using System.Diagnostics
 @inject EthereumService EthereumService;
 @inject IpfsService IpfsService;
 @inject RestService RestService;
@@ -25,22 +26,23 @@
             <button type="button" class="btn btn-primary btn-sm" disabled="@addNameButtonState" @onclick="async ()=> await AddLoopheadName()">Add Name</button> @nameSubmissionStatusResult
             <h3>Current Votes</h3>
             <p>@voteStatusText</p>
-            @{
-                int count = 0;
-            }
-            @foreach (var loopheadNameVote in loopheadNameVotes)
+            @for (int i = 0; i < loopheadNameVotes.Count; i++)
             {
+
+                Debug.WriteLine($"index {i}");
                 <p>
                     <strong>
-                        @loopheadNameVote.LoopheadName - @loopheadNameVote.Votes votes
-                        <button type="button" class="btn btn-primary btn-sm" disabled=@addVoteButtonState[count] @onclick="async ()=> await AddVote(loopheadNameVote.LoopheadName, count)">Vote</button>
-                        <button type="button" class="btn btn-primary btn-sm" disabled=@removeVoteButtonState[count] @onclick="async ()=>  await RemoveVote(loopheadNameVote.LoopheadName, count)">Remove Vote</button>
+                        @loopheadNameVotes[i].LoopheadName - @loopheadNameVotes[i].Votes votes
+                        <button type="button" class="btn btn-primary btn-sm" disabled="@addVoteButtonState[i]" @onclick="async ()=> await AddVote(loopheadNameVotes[i].LoopheadName, i)">Vote</button>
+                        <button type="button" class="btn btn-primary btn-sm" disabled="@removeVoteButtonState[i]" @onclick="async ()=>  await RemoveVote(loopheadNameVotes[i].LoopheadName, i)">Remove Vote</button>
                     </strong>
                 </p>
-                count++;
+
+
             }
         </div>
     </div>
+
 }
 else
 {
@@ -176,8 +178,9 @@ else
 
     private async Task AddVote(string _loopheadName, int buttonIndex)
     {
-        addVoteButtonState[buttonIndex - 1] = true;
-        removeVoteButtonState[buttonIndex - 1] = true;
+        Debug.WriteLine($"button index {buttonIndex}");
+        addVoteButtonState[buttonIndex] = true;
+        removeVoteButtonState[buttonIndex] = true;
         StateHasChanged();
         var checkIfVoteExistsResult = await SqlService.CheckIfVoteExists(clientUUID, _loopheadName, Int32.Parse(loopheadNumber));
 
@@ -203,8 +206,8 @@ else
 
     private async Task RemoveVote(string _loopheadName, int buttonIndex)
     {
-        addVoteButtonState[buttonIndex - 1] = true;
-        removeVoteButtonState[buttonIndex - 1] = true;
+        addVoteButtonState[buttonIndex] = true;
+        removeVoteButtonState[buttonIndex] = true;
         StateHasChanged();
         var checkIfVoteExistsResult = await SqlService.CheckIfVoteExists(clientUUID, _loopheadName, Int32.Parse(loopheadNumber));
 

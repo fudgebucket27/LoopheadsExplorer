@@ -139,7 +139,7 @@ namespace LoopheadsExplorer.Data
                      selectNameExistsParameters);
                 var selectNameExistsResult = selectNameExists.ToList();
 
-                if (selectVoteExistsResult.Count == 0 && selectIfClientAddedNameResult.Count == 0 && selectNameExistsResult.Count > 0)
+                if (selectVoteExistsResult.Count == 0 && selectNameExistsResult.Count > 0)
                 {
                     await db.ExecuteAsync("INSERT INTO Votes VALUES (@ClientUUID, @LoopheadNumber, @LoopheadName)", insertParameters);
                 }

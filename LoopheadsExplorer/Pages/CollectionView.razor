@@ -12,14 +12,14 @@
 
 @if (loopheadIpfsLinks.Count == 0)
 {
-        <p>Retrieving data...</p>
+            <p>Retrieving data...</p>
 }
 else
 {
     int count = 0;
     int collectionCount = 1;
 
-    @if(collectionId == "1")
+    @if (collectionId == "1")
     {
         minter = "0x0dc6a4682fdd859a41b5e7c9b473b31995f98236";
         contractAddress = "0x1cacc96e5f01e2849e6036f25531a9a064d2fb5f";
@@ -31,21 +31,21 @@ else
         string tradingHistoryLink = "";
         string nftId = "0x0" + BigInteger.Parse(loopheadIpfsLink.name).ToString("x");
         tradingHistoryLink = "https://explorer.loopring.io/nft/" + minter + "-0-" + contractAddress + "-" + nftId + "-0";
-        
+
         string showcaseLink = $"vote/{contractAddress}/{collectionIdIncrement}/{nftId}";
         string gifLink = $"gif/{collectionIdIncrement}";
         if (count != 1000)
         {   
-                        <h5>Loophead #@collectionIdIncrement 
-                            <button type="button" class="btn btn-primary btn-sm" @onclick="async () => await GetLoopheadVariationMetadataLinks(loopheadIpfsLink.cid)">View variations</button>
-                            <a href="@gifLink" target="_blank"><button type= "button" class="btn btn-primary btn-sm">View Gifs</button></a>
-                            <a href="@showcaseLink" target="_blank"><button type= "button" class="btn btn-primary btn-sm">Vote Name</button></a>
-                            <a href="@tradingHistoryLink" target="_blank"><button type="button" class="btn btn-primary btn-sm" >View trading history</button></a>
-                        </h5>
+                                    <h5>Loophead #@collectionIdIncrement 
+                                        <button type="button" class="btn btn-primary btn-sm" @onclick="async () => await GetLoopheadVariationMetadataLinks(loopheadIpfsLink.cid)">View variations</button>
+                                        <a href="@gifLink" target="_blank"><button type= "button" class="btn btn-primary btn-sm">View Gifs</button></a>
+                                        <a href="@showcaseLink" target="_blank"><button type= "button" class="btn btn-primary btn-sm">Vote Name</button></a>
+                                        <a href="@tradingHistoryLink" target="_blank"><button type="button" class="btn btn-primary btn-sm" >View trading history</button></a>
+                                    </h5>
         }
-        <!-- <NftCurrentView contractAddress="@contractAddress" tokenId="@nftId"></NftCurrentView> -->
+                <!-- <NftCurrentView contractAddress="@contractAddress" tokenId="@nftId"></NftCurrentView> -->
 
-        <LoopheadVariationRetrievalStateView loopheadVariationRetrievalStates="@loopheadVariationRetrievalStates" ipfsLinkCid="@loopheadIpfsLink.cid"/> 
+                <LoopheadVariationRetrievalStateView loopheadVariationRetrievalStates="@loopheadVariationRetrievalStates" ipfsLinkCid="@loopheadIpfsLink.cid"/> 
         @if (loopheadIpfsLinks.Where(x => x.loopheads.Count > 0).Any())
         {        
             @:@{
@@ -57,9 +57,9 @@ else
                         {
                             string variationNavTabId = "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString() + "-tab";
                             string variationNavTabTarget = "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString();
-                                              <li class="nav-item" role="presentation">
-                                                  <button class="nav-link" id="@variationNavTabId"  data-bs-toggle="pill" data-bs-target="#@variationNavTabTarget" type="button" role="tab" aria-controls="@variationNavTabTarget" aria-selected="false" @onclick="async () => await GetLoopheadVariationMetadata(loopheadVariations.metadataCidLink)">@loopheadVariations.baseId-@loopheadVariations.variation</button>
-                                              </li>
+                                                                      <li class="nav-item" role="presentation">
+                                                                          <button class="nav-link" id="@variationNavTabId"  data-bs-toggle="pill" data-bs-target="#@variationNavTabTarget" type="button" role="tab" aria-controls="@variationNavTabTarget" aria-selected="false" @onclick="async () => await GetLoopheadVariationMetadata(loopheadVariations.metadataCidLink)">@loopheadVariations.baseId-@loopheadVariations.variation</button>
+                                                                      </li>
                         }
                     }
                 </ul>
@@ -71,23 +71,23 @@ else
                         {
                             string variationTabPaneId = "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString();
                             string variationTabPaneTarget = "nav" + collectionIdIncrement.ToString() + loopheadVariations.baseId.ToString() + @loopheadVariations.variation.ToString() + "-tab";
-                                                    <div class="tab-pane fade" id="@variationTabPaneId" role="tabpanel" aria-labelledby="@variationTabPaneTarget">
+                                                                            <div class="tab-pane fade" id="@variationTabPaneId" role="tabpanel" aria-labelledby="@variationTabPaneTarget">
                                 @foreach (var loopheadMetadataRetrievalState in loopheadMetadataRetrievalStates)
                                 {
                                     if (loopheadMetadataRetrievalState.metadataCid == loopheadVariations.metadataCidLink && loopheadMetadataRetrievalState.retrievalState == RetrievalState.retrieving && loopheadVariations.metadata == null)
                                     {
-                                                                        <p>Retrieving metadata...</p>
+                                                                                                        <p>Retrieving metadata...</p>
                                     }
                                     else if (loopheadMetadataRetrievalState.metadataCid == loopheadVariations.metadataCidLink && loopheadMetadataRetrievalState.retrievalState == RetrievalState.error && loopheadVariations.metadata == null)
                                     {
-                                                                        <p>Issue with retrieving metadata, try again...</p>
+                                                                                                        <p>Issue with retrieving metadata, try again...</p>
                                     }
                                 }
                                 @if (loopheadVariations.metadata != null)
                                 {
-                                                                 <LoopheadMetadataView loopheadMetadata="loopheadVariations.metadata" ipfsGatewayUrl="@cloudflareIpfsGatewayUrl" />
+                                                                                             <LoopheadMetadataView loopheadMetadata="loopheadVariations.metadata" ipfsGatewayUrl="@cloudflareIpfsGatewayUrl" />
                                 }
-                                                    </div>
+                                                                            </div>
                         }
                     }
                 </div>
@@ -235,6 +235,14 @@ else
                             loophead.metadata = loopheadMetadata;
                             break;
                         }
+                    }
+                }
+                foreach (var loopheadMetadataRetrievalState in loopheadMetadataRetrievalStates)
+                {
+                    if (loopheadMetadataRetrievalState.metadataCid == loopheadMetadataLink)
+                    {
+                        loopheadMetadataRetrievalState.retrievalState = RetrievalState.success;
+                        break;
                     }
                 }
                 StateHasChanged();

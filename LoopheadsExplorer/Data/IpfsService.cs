@@ -32,6 +32,10 @@ namespace LoopheadsExplorer.Data
                 var data = JsonConvert.DeserializeObject<IpfsData>(response.Content);
                 return data;
             }
+            catch(System.Net.Http.HttpRequestException hex)
+            {
+                Trace.WriteLine(hex.StackTrace + "\n" + hex.Message);
+            }
             catch(System.Net.Sockets.SocketException sex)
             {
                 Trace.WriteLine(sex.StackTrace + "\n" + sex.Message);
@@ -61,6 +65,10 @@ namespace LoopheadsExplorer.Data
                 metadataAsStringCleaned = Regex.Replace(metadataAsStringCleaned, @"[^\u0000-\u007F]+", string.Empty);
                 var loopheadMetaData = JsonConvert.DeserializeObject<LoopheadMetadata>(metadataAsStringCleaned);
                 return loopheadMetaData;
+            }
+            catch (System.Net.Http.HttpRequestException hex)
+            {
+                Trace.WriteLine(hex.StackTrace + "\n" + hex.Message);
             }
             catch (System.Net.Sockets.SocketException sex)
             {

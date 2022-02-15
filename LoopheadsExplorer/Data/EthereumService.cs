@@ -17,6 +17,10 @@ namespace LoopheadsExplorer.Data
                 var uri = await function.CallAsync<string>(parameters);
                 return uri.Remove(0, 7); //remove the ipfs portion
             }
+            catch (System.Net.Http.HttpRequestException hex)
+            {
+                Trace.WriteLine(hex.StackTrace + "\n" + hex.Message);
+            }
             catch (System.Net.Sockets.SocketException sex)
             {
                 Trace.WriteLine(sex.StackTrace + "\n" + sex.Message);

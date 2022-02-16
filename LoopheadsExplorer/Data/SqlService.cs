@@ -15,7 +15,7 @@ namespace LoopheadsExplorer.Data
         }
         public async Task<List<LoopheadNameVotesSqlData>> GetLoopheadVotes(int _loopheadNumber)
         {
-            using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
+            using (IDbConnection db = new SqlConnection(System.Environment.GetEnvironmentVariable("SQLCONNSTR_DB")))
             {
                 db.Open();
                 var parameters = new { LoopheadNumber = _loopheadNumber };
@@ -29,7 +29,7 @@ namespace LoopheadsExplorer.Data
 
         public async Task<List<LoopheadNameVotesSqlData>> CheckIfLoopheadNameExists(string _loopheadName, int _loopheadNumber)
         {
-            using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
+            using (IDbConnection db = new SqlConnection(System.Environment.GetEnvironmentVariable("SQLCONNSTR_DB")))
             {
                 db.Open();
                 var parameters = new { LoopheadName = _loopheadName.ToUpper(), LoopheadNumber = _loopheadNumber };
@@ -43,7 +43,7 @@ namespace LoopheadsExplorer.Data
 
         public async Task<List<LoopheadNameClientVotesSqlData>> CheckIfVoteExists(string _clientUUID, string _loopheadName, int _loopheadNumber)
         {
-            using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
+            using (IDbConnection db = new SqlConnection(System.Environment.GetEnvironmentVariable("SQLCONNSTR_DB")))
             {
                 db.Open();
                 var parameters = new { ClientUUID = _clientUUID, LoopheadName = _loopheadName.ToUpper(), LoopheadNumber = _loopheadNumber };
@@ -57,7 +57,7 @@ namespace LoopheadsExplorer.Data
 
         public async Task<List<LoopheadNameVotesSqlData>> CheckIfClientAddedNameAlready(string _clientUUID,  int _loopheadNumber)
         {
-            using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
+            using (IDbConnection db = new SqlConnection(System.Environment.GetEnvironmentVariable("SQLCONNSTR_DB")))
             {
                 db.Open();
                 var parameters = new { ClientUUID = _clientUUID, LoopheadNumber = _loopheadNumber };
@@ -72,7 +72,7 @@ namespace LoopheadsExplorer.Data
 
         public async Task AddName(string _clientUUID, string _loopheadName, int _loopheadNumber)
         {
-            using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
+            using (IDbConnection db = new SqlConnection(System.Environment.GetEnvironmentVariable("SQLCONNSTR_DB")))
             {
                 db.Open();
                 var insertParameters = new
@@ -101,7 +101,7 @@ namespace LoopheadsExplorer.Data
 
         public async Task AddVote(string _clientUUID, string _loopheadName, int _loopheadNumber)
         {
-            using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
+            using (IDbConnection db = new SqlConnection(System.Environment.GetEnvironmentVariable("SQLCONNSTR_DB")))
             {
                 db.Open();
                 var insertParameters = new
@@ -153,7 +153,7 @@ namespace LoopheadsExplorer.Data
 
         public async Task RemoveVote(string _clientUUID, string _loopheadName, int _loopheadNumber)
         {
-            using (IDbConnection db = new SqlConnection(Configuration.GetConnectionString("DB")))
+            using (IDbConnection db = new SqlConnection(System.Environment.GetEnvironmentVariable("SQLCONNSTR_DB")))
             {
                 db.Open();
                 var parameters = new

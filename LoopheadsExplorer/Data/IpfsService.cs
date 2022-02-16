@@ -17,7 +17,7 @@ namespace LoopheadsExplorer.Data
         public IpfsService()
         {
             _client = new RestClient(BaseUrl);
-            _client.Authenticator = new HttpBasicAuthenticator("23U8HdMVy2jYDZPPGOOfbKnzGVj", "145799b9d4528e56c8d82eaba0a543d3");
+            _client.Authenticator = new HttpBasicAuthenticator(System.Environment.GetEnvironmentVariable("APPSETTING_INFURAIPFSUSERNAME"), System.Environment.GetEnvironmentVariable("APPSETTING_INFURAIPFSPASSWORD"));
         }
 
         public async Task<IpfsData> GetDirectoryContents(string ipfsHash)

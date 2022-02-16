@@ -1,0 +1,92 @@
+﻿@using LoopheadsExplorer.Models;
+
+@inject IHttpClientFactory ClientFactory
+@inject IJSRuntime JS;
+
+
+@{
+    var loopheadImageUrl = ipfsGatewayUrl + loopheadMetadata.image.Remove(0, 7);
+
+    <div class="card mb-3" style="max-width: 720px;">
+      <div class="row g-0">
+        <div class="col-md-4">
+          @if(@imageLoading == true)
+          {
+             <p>@imageLoadingText</p>
+          }
+          <img id="@loopheadMetadata.image" class="img-fluid rounded-start">
+        </div>
+        <div class="col-md-4">
+          <div class="card-body">
+               <p class="card-text">Name: @loopheadMetadata.name</p>
+                <p class="card-text">Description: @loopheadMetadata.description</p>
+                <p class="card-text">Image Url: @loopheadMetadata.image</p>
+                <p class="card-text">External Uri: @loopheadMetadata.externalUri</p>
+                <p class="card-text">Cache Expiry Seconds: @loopheadMetadata.cacheExpirySeconds</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card-body">
+                @foreach (var trait in loopheadMetadata.attributes)
+                {
+                    <p class="card-text">Trait type: @trait.traitType</p>
+                    <p class="card-text">Value: @trait.value</p>
+                }
+          </div>
+        </div>
+      </div>
+    </div>
+}
+
+
+@code {
+
+    [Parameter]
+    public LoopheadMetadata loopheadMetadata { get; set; }
+    [Parameter]
+    public string ipfsGatewayUrl { get; set; }
+
+    private bool imageLoading = true;
+
+    private string imageLoadingText = "Retrieving image...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await SetImageUsingStreamingAsync();
+            imageLoading = false;
+        }
+        catch(HttpRequestException he)
+        {
+            imageLoading = true;
+            imageLoadingText = "Image retrieval failed, try again...";
+        }
+        catch(TaskCanceledException te)
+        {
+            imageLoading = true;
+            imageLoadingText = "Image retrieval failed, try again...";
+        }
+        catch(Exception e)
+        {
+            imageLoading = true;
+            imageLoadingText = "Image retrieval failed, try again...";
+        }       
+        StateHasChanged();
+    }
+
+    private async Task SetImageUsingStreamingAsync()
+    {
+        
+        var imageStream = await GetImageStreamAsync();
+        var dotnetImageStream = new DotNetStreamReference(imageStream);
+        await JS.InvokeVoidAsync("setImageUsingStreaming", 
+            loopheadMetadata.image, dotnetImageStream);
+    }
+
+    private async Task<Stream> GetImageStreamAsync()
+    { 
+        var client = ClientFactory.CreateClient();
+        return await client.GetStreamAsync(ipfsGatewayUrl + loopheadMetadata.image.Remove(0, 7));
+    }
+}

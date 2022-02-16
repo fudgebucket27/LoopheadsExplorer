@@ -1,0 +1,74 @@
+﻿@using LoopheadsExplorer.Data;
+@using LoopheadsExplorer.Models;
+@inject EthereumService EthereumService;
+@inject IpfsService IpfsService;
+@inject RestService RestService;
+@inject IAppCache AppCache;
+
+@if (currentLoopheadMetadata != null)
+{
+    <div class="col-md-4">
+        <img src="@currentLoopheadImageLink" width="250" height="250" loading="lazy" />
+    </div>
+}
+else
+{
+    <p>@statusText</p>
+}
+@code {
+    [Parameter]
+    public string contractAddress { get; set; }
+
+    [Parameter]
+    public string tokenId { get; set; }
+
+    private string currentLoopheadMetadataLink { get; set; }
+
+    private string ipfsGatewayUrl = "https://loopring.mypinata.cloud/ipfs/";
+
+    private LoopheadMetadata currentLoopheadMetadata { get; set; }
+    private string currentLoopheadImageLink { get; set; }
+
+    private string statusText = "Retrieving metadata URI from smart contract...";
+
+    /*
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+    }
+    */
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        string currentLoopheadMetadataLinkCacheKey = $"currentLoopheadMetadatalink-{tokenId}"; 
+        while(String.IsNullOrEmpty(currentLoopheadMetadataLink))
+        {
+            currentLoopheadMetadataLink = await AppCache.GetOrAddAsync(currentLoopheadMetadataLinkCacheKey, () => EthereumService.GetLoopheadMetadataLink(contractAddress, tokenId), DateTimeOffset.UtcNow.AddMinutes(120));   
+        }
+
+        if (!String.IsNullOrEmpty(currentLoopheadMetadataLink))
+        {
+            statusText = "Retrieved metadata URI, now retrieving metadata and image...";
+            StateHasChanged();
+            string currentLoopheadMetadataCacheKey = $"currentLoopheadMetadata-{tokenId}";
+            while(currentLoopheadMetadata == null)
+            {
+                currentLoopheadMetadata = await AppCache.GetOrAddAsync(currentLoopheadMetadataCacheKey, () => IpfsService.GetLoopheadMetadata(currentLoopheadMetadataLink), DateTimeOffset.UtcNow.AddMinutes(120));
+            }
+            if (currentLoopheadMetadata != null)
+            {
+                currentLoopheadImageLink = ipfsGatewayUrl + currentLoopheadMetadata.image.Remove(0, 7);
+            }
+            else
+            {
+                statusText = "Image retrieval failed... try again";
+            }
+        }
+        else
+        {
+            statusText = "Could not get metadata... try again";
+        }
+        StateHasChanged();
+    }
+}

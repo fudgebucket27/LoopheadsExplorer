@@ -1,0 +1,31 @@
+﻿@using LoopheadsExplorer.Models
+
+@{
+    foreach(var loopheadVariationRetrievalState in loopheadVariationRetrievalStates)
+    {
+        if(loopheadVariationRetrievalState.cid == ipfsLinkCid && loopheadVariationRetrievalState.retrievalState == VariationRetrievalState.retrieving)
+        {
+            <p>Retrieving variations...</p>
+            break;
+        }
+        else if(loopheadVariationRetrievalState.cid == ipfsLinkCid && loopheadVariationRetrievalState.retrievalState == VariationRetrievalState.error)
+        {
+            <p>Issue with retrieving variations, try again...</p>
+            break;
+        }
+        else if(loopheadVariationRetrievalState.cid == ipfsLinkCid && loopheadVariationRetrievalState.retrievalState == VariationRetrievalState.success)
+        {
+            //Don't display anything
+            break;
+        }
+    }
+}
+
+@code {
+    [Parameter]
+    public List<LoopheadVariationRetrievalState> loopheadVariationRetrievalStates { get; set; }
+
+    [Parameter]
+    public string ipfsLinkCid { get; set; }
+
+}

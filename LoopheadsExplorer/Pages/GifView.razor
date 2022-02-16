@@ -1,0 +1,28 @@
+﻿@page "/gif/{loopheadNumber}"
+<h1>Loophead #@loopheadNumber</h1>
+
+@for(int i = 0; i < 6; i++)
+{
+    if(i != 5)
+    {
+        string gifUrlOne = $"{gifSite}/{loopheadNumber}/{loopheadNumber}_{i}_throb_900x900.gif";
+      
+        <img src="@gifUrlOne">
+   
+    }
+    else
+    {
+        string gifUrl = $"{gifSite}/{loopheadNumber}/{loopheadNumber}_random_900x900.gif";
+        string gifUrlTwo = $"{gifSite}/{loopheadNumber}/{loopheadNumber}_showcase_900x900.gif";
+        <img src="@gifUrl">
+        <img src="@gifUrlTwo">
+    }
+}
+
+@code {
+
+    [Parameter]
+    public string loopheadNumber { get; set; }
+
+    private string gifSite = "https://loopalikes.club/images/"; //sk33z3r.eth is a LEGEND!!!
+}

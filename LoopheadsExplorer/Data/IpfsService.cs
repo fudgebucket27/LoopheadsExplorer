@@ -28,7 +28,7 @@ namespace LoopheadsExplorer.Data
                 ;
             try
             {
-                var response = await _client.GetAsync(request);
+                var response = await _client.PostAsync(request);
                 var data = JsonConvert.DeserializeObject<IpfsData>(response.Content);
                 return data;
             }

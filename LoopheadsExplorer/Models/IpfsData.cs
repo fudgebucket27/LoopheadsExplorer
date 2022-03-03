@@ -11,6 +11,11 @@ namespace LoopheadsExplorer.Models
     public class Data
     {
         [JsonProperty(PropertyName = "/")]
+        public Slash Slash { get; set; }
+    }
+
+    public class Slash
+    {
         public string bytes { get; set; }
     }
 }

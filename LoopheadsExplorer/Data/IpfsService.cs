@@ -59,7 +59,10 @@ namespace LoopheadsExplorer.Data
                 var data = JsonConvert.DeserializeObject<IpfsData>(response.Content);
                 byte[] metaDataByteArray = Encoding.UTF8.GetBytes(data.Data.Slash.bytes);
                 var metadata64AsString = Encoding.UTF8.GetString(metaDataByteArray); //this is a base64 string
-                metadata64AsString = metadata64AsString + "==";
+                if(metadata64AsString.Contains("+"))
+                {
+                    metadata64AsString = metadata64AsString + "==";
+                }
                 var metadataDecodedAsBytes = Convert.FromBase64String(metadata64AsString);
                 var metadataDecoded = Encoding.UTF8.GetString(metadataDecodedAsBytes);
                 var metadataAsStringCleaned = new string(metadataDecoded.Where(c => !char.IsControl(c)).ToArray());

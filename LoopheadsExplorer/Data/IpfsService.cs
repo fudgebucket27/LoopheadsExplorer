@@ -5,7 +5,7 @@ using RestSharp.Authenticators;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
-
+using System.Web;
 namespace LoopheadsExplorer.Data
 {
     public class IpfsService
@@ -22,10 +22,9 @@ namespace LoopheadsExplorer.Data
 
         public async Task<IpfsData> GetDirectoryContents(string ipfsHash)
         {
-            var request = new RestRequest("api/v0/dag/get")
-                .AddParameter("arg", ipfsHash)
-                .AddParameter("output-codec", "dag-json")
-                ;
+            var request = new RestRequest($"api/v0/dag/get");
+            request.AddQueryParameter("arg", ipfsHash);
+            request.AddQueryParameter("output-codec", "dag-json");
             try
             {
                 var response = await _client.PostAsync(request);
@@ -50,18 +49,20 @@ namespace LoopheadsExplorer.Data
 
         public async Task<LoopheadMetadata> GetLoopheadMetadata(string ipfsHash)
         {
-            var request = new RestRequest("api/v0/dag/get")
-                .AddParameter("arg", ipfsHash)
-                .AddParameter("output-codec", "dag-json")
+            var request = new RestRequest("api/v0/dag/get");
+                request.AddQueryParameter("arg", ipfsHash);
+                request.AddQueryParameter("output-codec", "dag-json");
                 ;
             try
             {
                 var response = await _client.PostAsync(request);
                 var data = JsonConvert.DeserializeObject<IpfsData>(response.Content);
-                var metadataBase64String = data.data.bytes;
-                byte[] metaDataByteArray = Convert.FromBase64String(metadataBase64String);
-                var metadataAsString = Encoding.UTF8.GetString(metaDataByteArray);
-                var metadataAsStringCleaned = new string(metadataAsString.Where(c => !char.IsControl(c)).ToArray());
+                byte[] metaDataByteArray = Encoding.UTF8.GetBytes(data.Data.Slash.bytes);
+                var metadata64AsString = Encoding.UTF8.GetString(metaDataByteArray); //this is a base64 string
+                metadata64AsString = metadata64AsString + "==";
+                var metadataDecodedAsBytes = Convert.FromBase64String(metadata64AsString);
+                var metadataDecoded = Encoding.UTF8.GetString(metadataDecodedAsBytes);
+                var metadataAsStringCleaned = new string(metadataDecoded.Where(c => !char.IsControl(c)).ToArray());
                 metadataAsStringCleaned = Regex.Replace(metadataAsStringCleaned, @"[^\u0000-\u007F]+", string.Empty);
                 var loopheadMetaData = JsonConvert.DeserializeObject<LoopheadMetadata>(metadataAsStringCleaned);
                 return loopheadMetaData;

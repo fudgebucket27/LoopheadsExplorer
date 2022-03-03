@@ -56,7 +56,7 @@ namespace LoopheadsExplorer.Data
                 ;
             try
             {
-                var response = await _client.GetAsync(request);
+                var response = await _client.PostAsync(request);
                 var data = JsonConvert.DeserializeObject<IpfsData>(response.Content);
                 var metadataBase64String = data.data;
                 byte[] metaDataByteArray = Convert.FromBase64String(metadataBase64String);

@@ -22,10 +22,9 @@ namespace LoopheadsExplorer.Data
 
         public async Task<IpfsData> GetDirectoryContents(string ipfsHash)
         {
-            var request = new RestRequest("api/v0/dag/get")
-                .AddParameter("arg", ipfsHash)
-                .AddParameter("output-codec", "dag-json")
-                ;
+            var request = new RestRequest($"api/v0/dag/get");
+            request.AddQueryParameter("arg", ipfsHash);
+            request.AddQueryParameter("output-codec", "dag-json");
             try
             {
                 var response = await _client.PostAsync(request);
@@ -50,15 +49,15 @@ namespace LoopheadsExplorer.Data
 
         public async Task<LoopheadMetadata> GetLoopheadMetadata(string ipfsHash)
         {
-            var request = new RestRequest("api/v0/dag/get")
-                .AddParameter("arg", ipfsHash)
-                .AddParameter("output-codec", "dag-json")
+            var request = new RestRequest("api/v0/dag/get");
+                request.AddQueryParameter("arg", ipfsHash);
+                request.AddQueryParameter("output-codec", "dag-json");
                 ;
             try
             {
                 var response = await _client.PostAsync(request);
                 var data = JsonConvert.DeserializeObject<IpfsData>(response.Content);
-                var metadataBase64String = data.data.bytes;
+                var metadataBase64String = data.Data.bytes;
                 byte[] metaDataByteArray = Convert.FromBase64String(metadataBase64String);
                 var metadataAsString = Encoding.UTF8.GetString(metaDataByteArray);
                 var metadataAsStringCleaned = new string(metadataAsString.Where(c => !char.IsControl(c)).ToArray());

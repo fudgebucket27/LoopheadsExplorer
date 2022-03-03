@@ -4,8 +4,8 @@ namespace LoopheadsExplorer.Models
 {
     public class IpfsData
     {
-        public Data data { get; set; }
-        public List<IpfsLink> links { get; set; }
+        public Data Data { get; set; }
+        public List<IpfsLink> Links { get; set; }
     }
 
     public class Data

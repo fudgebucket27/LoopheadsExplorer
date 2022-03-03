@@ -127,7 +127,7 @@ else
         //string baseUri = await EthereumService.GetLoopheadBaseUri(contractAddress);
         IpfsData ipfsDataLevelOne = await IpfsService.GetDirectoryContents(ipfsAddress);
         //IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(ipfsDataLevelOne.links[0].Cid.value)
-        foreach (var links in ipfsDataLevelOne.links)
+        foreach (var links in ipfsDataLevelOne.Links)
         {
             if (links.Name != "mint-params.json")
             {
@@ -160,7 +160,7 @@ else
         IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(loopheadMetadataLink);
         if (ipfsDataLevelTwo != null)
         {
-            foreach (var link in ipfsDataLevelTwo.links)
+            foreach (var link in ipfsDataLevelTwo.Links)
             {
                 foreach (var ipfsLink in loopheadIpfsLinks)
                 {
@@ -223,7 +223,7 @@ else
         IpfsData ipfsDataLevelThree = await IpfsService.GetDirectoryContents(loopheadMetadataLink);
         if (ipfsDataLevelThree != null)
         {
-            LoopheadMetadata loopheadMetadata = await IpfsService.GetLoopheadMetadata(ipfsDataLevelThree.links[0].Hash.value);
+            LoopheadMetadata loopheadMetadata = await IpfsService.GetLoopheadMetadata(ipfsDataLevelThree.Links[0].Hash.value);
             if (loopheadMetadata != null)
             {
                 foreach (var ipfsLink in loopheadIpfsLinks)

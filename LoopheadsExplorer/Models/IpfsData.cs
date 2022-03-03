@@ -1,8 +1,16 @@
-﻿namespace LoopheadsExplorer.Models
+﻿using Newtonsoft.Json;
+
+namespace LoopheadsExplorer.Models
 {
     public class IpfsData
     {
-        public string data { get; set; }
+        public Data data { get; set; }
         public List<IpfsLink> links { get; set; }
+    }
+
+    public class Data
+    {
+        [JsonProperty(PropertyName = "/")]
+        public string bytes { get; set; }
     }
 }

@@ -3,8 +3,8 @@
     public class IpfsLink
     {
         public string Name { get; set; }
-        public int Size { get; set; }
+        public int Tsize { get; set; }
 
-        public IpfsCid Cid { get; set; }
+        public IpfsCid Hash { get; set; }
     }
 }

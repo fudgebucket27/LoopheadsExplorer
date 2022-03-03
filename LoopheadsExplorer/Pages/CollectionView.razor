@@ -134,11 +134,11 @@ else
                 LoopheadIpfsLink loopheadIpfsLink = new LoopheadIpfsLink
                     {
                         name = links.Name,
-                        cid = links.Cid.value
+                        cid = links.Hash.value
                     };
                 LoopheadVariationRetrievalState loopheadVariationRetrievalState = new LoopheadVariationRetrievalState
                     {
-                        cid = links.Cid.value
+                        cid = links.Hash.value
                     };
                 loopheadIpfsLinks.Add(loopheadIpfsLink);
                 loopheadVariationRetrievalStates.Add(loopheadVariationRetrievalState);
@@ -173,11 +173,11 @@ else
                                 baseCid = loopheadMetadataLink,
                                 baseId = link.Name.Split('_')[0],
                                 variation = link.Name.Split('_')[1],
-                                metadataCidLink = link.Cid.value
+                                metadataCidLink = link.Hash.value
                             };
                         LoopheadMetadataRetrievalState loopheadMetadataRetrievalState = new LoopheadMetadataRetrievalState
                             {
-                                metadataCid = link.Cid.value
+                                metadataCid = link.Hash.value
                             };
                         ipfsLink.loopheads.Add(loophead);
                         loopheadMetadataRetrievalStates.Add(loopheadMetadataRetrievalState);
@@ -223,7 +223,7 @@ else
         IpfsData ipfsDataLevelThree = await IpfsService.GetDirectoryContents(loopheadMetadataLink);
         if (ipfsDataLevelThree != null)
         {
-            LoopheadMetadata loopheadMetadata = await IpfsService.GetLoopheadMetadata(ipfsDataLevelThree.links[0].Cid.value);
+            LoopheadMetadata loopheadMetadata = await IpfsService.GetLoopheadMetadata(ipfsDataLevelThree.links[0].Hash.value);
             if (loopheadMetadata != null)
             {
                 foreach (var ipfsLink in loopheadIpfsLinks)

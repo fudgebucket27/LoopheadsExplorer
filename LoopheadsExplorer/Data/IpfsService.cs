@@ -63,6 +63,10 @@ namespace LoopheadsExplorer.Data
                 {
                     metadata64AsString = metadata64AsString + "==";
                 }
+                else if(metadata64AsString.Length % 2 != 0) //some metadata needs to be padded so just check for mod 2 and add if need
+                {
+                    metadata64AsString = metadata64AsString + "=";
+                }
                 var metadataDecodedAsBytes = Convert.FromBase64String(metadata64AsString);
                 var metadataDecoded = Encoding.UTF8.GetString(metadataDecodedAsBytes);
                 var metadataAsStringCleaned = new string(metadataDecoded.Where(c => !char.IsControl(c)).ToArray());

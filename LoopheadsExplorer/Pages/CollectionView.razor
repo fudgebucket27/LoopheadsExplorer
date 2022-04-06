@@ -12,7 +12,7 @@
 
 @if (loopheadIpfsLinks.Count == 0)
 {
-            <p>Retrieving data...</p>
+    <p>Retrieving data...</p>
 }
 else
 {
@@ -22,7 +22,7 @@ else
 
     minter = "0x0dc6a4682fdd859a41b5e7c9b473b31995f98236";
     contractAddress = "0x1cacc96e5f01e2849e6036f25531a9a064d2fb5f";
-    
+
 
     foreach (var loopheadIpfsLink in loopheadIpfsLinks)
     {
@@ -34,13 +34,16 @@ else
         string showcaseLink = $"vote/{contractAddress}/{collectionIdIncrement}/{nftId}";
         string gifLink = $"gif/{collectionIdIncrement}";
         if (count != 1000)
-        {   
-                                    <h5>Loophead #@collectionIdIncrement 
+        {
+
+                                    var imageSrc=$"https://loopalikes.club/images/{collectionIdIncrement}/vars/{loopheadIpfsLink.randomNumOne}-{loopheadIpfsLink.randomNumTwo}.png";
+                                    <h5>Loophead #@collectionIdIncrement </h5>
+                                    <img src="@imageSrc" height="256" width="256" loading="lazy">
+                                     <br />
                                         <button type="button" class="btn btn-primary btn-sm" @onclick="async () => await GetLoopheadVariationMetadataLinks(loopheadIpfsLink.cid)">View variations</button>
                                         <a href="@gifLink" target="_blank"><button type= "button" class="btn btn-primary btn-sm">View Gifs</button></a>
                                         <a href="@showcaseLink" target="_blank"><button type= "button" class="btn btn-primary btn-sm">Vote Name</button></a>
                                         <a href="@tradingHistoryLink" target="_blank"><button type="button" class="btn btn-primary btn-sm" >View trading history</button></a>
-                                    </h5>
         }
                 <!-- <NftCurrentView contractAddress="@contractAddress" tokenId="@nftId"></NftCurrentView> -->
 
@@ -126,14 +129,19 @@ else
         //string baseUri = await EthereumService.GetLoopheadBaseUri(contractAddress);
         IpfsData ipfsDataLevelOne = await IpfsService.GetDirectoryContents(ipfsAddress);
         //IpfsData ipfsDataLevelTwo = await IpfsService.GetDirectoryContents(ipfsDataLevelOne.links[0].Cid.value)
+        var random = new Random();
         foreach (var links in ipfsDataLevelOne.Links)
         {
             if (links.Name != "mint-params.json")
             {
+                  int random1 = random.Next(0, 4);
+                  int random2 = random.Next(0, 4);
                 LoopheadIpfsLink loopheadIpfsLink = new LoopheadIpfsLink
                     {
                         name = links.Name,
-                        cid = links.Hash.value
+                        cid = links.Hash.value,
+                        randomNumOne = random1,
+                        randomNumTwo = random2
                     };
                 LoopheadVariationRetrievalState loopheadVariationRetrievalState = new LoopheadVariationRetrievalState
                     {

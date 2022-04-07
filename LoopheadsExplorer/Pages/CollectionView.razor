@@ -39,7 +39,7 @@ else
                                    
                                     <h5>Loophead #@collectionIdIncrement </h5>
                                     var imageSrc= $"images/{collectionId}/{collectionIdIncrement}.png";
-                                    <img src="@imageSrc" height="96" width="96" loading="lazy">
+                                    <img src="@imageSrc" height="96" width="96" loading="eager">
                                      <br />
                                         <button type="button" class="btn btn-primary btn-sm" @onclick="async () => await GetLoopheadVariationMetadataLinks(loopheadIpfsLink.cid)">View variations</button>
                                         <a href="@gifLink" target="_blank"><button type= "button" class="btn btn-primary btn-sm">View Gifs</button></a>

@@ -23,7 +23,7 @@ else
     minter = "0x0dc6a4682fdd859a41b5e7c9b473b31995f98236";
     contractAddress = "0x1cacc96e5f01e2849e6036f25531a9a064d2fb5f";
 
-
+    var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
     foreach (var loopheadIpfsLink in loopheadIpfsLinks)
     {
         int collectionIdIncrement = collectionCount + Int32.Parse(increment);
@@ -36,9 +36,10 @@ else
         if (count != 1000)
         {
 
-                                    var imageSrc=$"https://loopalikes.club/images/{collectionIdIncrement}/vars/{loopheadIpfsLink.randomNumOne}-{loopheadIpfsLink.randomNumTwo}.png";
+                                   
                                     <h5>Loophead #@collectionIdIncrement </h5>
-                                    <img src="@imageSrc" height="256" width="256" loading="lazy">
+                                    var imageSrc= $"images/{collectionId}/{collectionIdIncrement}.png";
+                                    <img src="@imageSrc" height="96" width="96" loading="lazy">
                                      <br />
                                         <button type="button" class="btn btn-primary btn-sm" @onclick="async () => await GetLoopheadVariationMetadataLinks(loopheadIpfsLink.cid)">View variations</button>
                                         <a href="@gifLink" target="_blank"><button type= "button" class="btn btn-primary btn-sm">View Gifs</button></a>

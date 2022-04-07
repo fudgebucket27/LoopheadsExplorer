@@ -36,9 +36,10 @@ else
         if (count != 1000)
         {
 
-                                    var imageSrc= baseDirectory + $"images/{collectionId}/{collectionIdIncrement}.png";
+                                   
                                     <h5>Loophead #@collectionIdIncrement </h5>
-                                    <img src="@imageSrc" height="256" width="256" loading="lazy">
+                                    var imageSrc= $"images/{collectionId}/{collectionIdIncrement}.png";
+                                    <img src="@imageSrc" height="96" width="96" loading="lazy">
                                      <br />
                                         <button type="button" class="btn btn-primary btn-sm" @onclick="async () => await GetLoopheadVariationMetadataLinks(loopheadIpfsLink.cid)">View variations</button>
                                         <a href="@gifLink" target="_blank"><button type= "button" class="btn btn-primary btn-sm">View Gifs</button></a>
